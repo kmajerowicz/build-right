@@ -137,37 +137,42 @@ During scope shaping, research areas are identified and triaged into three tiers
 ## Phase 1: PRD Generation
 
 ### What it does
-Turns scope.md into a full technical PRD — the single source of truth for the entire project.
+Turns scope.md into a pure product PRD + per-feature specs — the product knowledge base for the entire project.
 
 ### How it works
 - Input: scope.md + any design references (Figma, screenshots, design system .md)
 - Claude generates condensed PRD.md (~200-300 lines) + individual feature files (`docs/features/*.md`)
 - User iterates on individual feature files (easier to review than a monolith)
 - **Research areas marked "blocking PRD"** are resolved here (parallel agents for independent research questions)
+- PRD is **purely product** — no tech stack, no schemas, no routes. Those live in CLAUDE.md (tech context) and code (implementation).
 
 ### Progressive disclosure structure
 
-**PRD.md** (~200-300 lines, condensed) contains:
-1. Project summary
+**PRD.md** (~200-300 lines, pure product knowledge) contains:
+1. Project summary (what, for whom, why)
 2. Business goals and success metrics
 3. User personas
 4. MVP scope and exclusions
-5. System architecture (with ASCII diagram)
-6. Project structure (file tree)
-7. Data model (with relationships, schemas)
-8. Feature index (table with links to `features/*.md`)
-9. Non-functional requirements
-10. Design system reference
-11. Build Phases (ordered, each marked `creative` or `systematic`, with success criteria)
-12. Research areas status
+5. High-level architecture (system diagram — boxes and arrows, not code)
+6. Conceptual data model (entities, relationships, business rules — NOT schemas)
+7. Feature index (table with links to `features/*.md`)
+8. Non-functional requirements (performance targets, accessibility level)
+9. Design direction (inspiration, color palette, mobile-first — NOT design tokens)
+10. Build phases (ordered, typed creative/systematic, success criteria)
+11. Research areas status
+
+**Does NOT contain:** Tech stack, table schemas, routes, endpoints, design tokens, code conventions. Those live in CLAUDE.md (pointers + conventions) or in code.
 
 **docs/features/*.md** (one per feature, ~300 lines max each) contains:
 - Feature name, purpose, user flow
 - States: empty, partial, full, error, loading, offline
-- Data requirements, UI description, interactions
-- Edge cases and business rules
+- Business rules and edge cases
+- Data needs at conceptual level ("needs user's weekly goal and this week's tracked km")
+- UX description (layout intent, key interactions)
 - Decision log (choices + rationale)
 - Related features (links to other feature files)
+
+**Does NOT contain:** Component names, CSS classes, API call details, schema field names. Those are code.
 
 Chain: `CLAUDE.md` → `PRD.md` → relevant `features/*.md` per task. Never 1700 lines at once.
 

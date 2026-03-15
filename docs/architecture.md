@@ -4,28 +4,72 @@
 
 ---
 
-## The Problem with Monolithic PRDs
+## Core Principle: Docs for Product, Code for Implementation
 
-The original Vitis PRD was ~32k tokens (~1700 lines). In practice, Claude never read the whole thing — it jumped to the relevant section ("implement section 10.2"). This works, but:
+Documents and code serve different audiences and different purposes. When they overlap, information drifts — the doc says one thing, the code says another. BR solves this with a clear separation:
 
-- Large files are slow to parse and easy to lose context in
-- Updating one feature means touching a massive document
-- No clear ownership — who "owns" the dashboard spec vs the auth spec?
-- New team members (human or AI) face a wall of text
+| In documents (product knowledge) | In code (implementation) |
+|---|---|
+| What we're building and why | How it's implemented |
+| User flows and business rules | Routes, endpoints, API contracts |
+| Entity relationships (conceptual) | Table schemas, column types, migrations |
+| Feature states (empty, error, loading) | Component logic |
+| Design decisions and rationale | CSS, design tokens |
+| Success criteria | Test cases |
+
+**Documents describe what and why. Code describes how.** Documents reference code for implementation details — they don't duplicate it.
+
+### The Reference Pattern
+
+Instead of duplicating implementation details in docs, use references:
+
+```markdown
+## Data Model
+
+### Entities and Relationships
+User 1──* Dog (one user, one dog in MVP, many in v2)
+Dog has: name, breed (text), age, weight, optional weekly goals
+User has: default location, optional distance preferences, optional streak minimum
+
+Goals are fully optional — the app works without them.
+When goals are not set: dashboard shows raw stats, streak is inactive.
+
+### Implementation Reference
+Schema: `supabase/migrations/` (source of truth for types and fields)
+```
+
+The conceptual level (entities, relationships, business rules) is **stable** — it doesn't change when you rename a column or refactor a migration. The implementation level lives in code where it belongs. The doc **points to** the code, never duplicates it.
+
+This is the same pattern Kacper used in Vitis with `docs/VITIS-DESIGN-SYSTEM.md` — the design system doc informed the CSS, it wasn't a copy of the CSS.
+
+---
+
+## The PM → Dev Handoff
+
+BR is designed for a workflow where **PM prepares product docs, dev executes**.
+
+The PM's deliverables:
+- `docs/scope.md` — vision, decisions, research areas (Phase 0)
+- `docs/PRD.md` — condensed product knowledge (Phase 1)
+- `docs/features/*.md` — per-feature specs (Phase 1)
+
+The dev reads these docs and understands the product **without the PM explaining it**. Then reads the code for implementation. No external tools, no Confluence, no "ask the PM" — everything is in the repo.
+
+Claude Code works the same way: reads CLAUDE.md for technical context, reads feature files for product context, reads code for implementation.
+
+---
 
 ## Progressive Disclosure
 
-Inspired by how CLAUDE.md works best — a small document that points to deeper context — BR projects use a layered architecture:
+Three layers, each adding detail. Claude (or a human) reads only what's needed:
 
 ```
 CLAUDE.md (~50 lines, grows with corrections)
   ↓ points to
-PRD.md (~200-300 lines, condensed product knowledge)
+PRD.md (~200-300 lines, pure product knowledge)
   ↓ points to
 docs/features/*.md (one per feature, ~300 lines max each)
 ```
-
-Each layer adds detail. Claude reads what it needs for the current task, not everything.
 
 ---
 
@@ -33,95 +77,113 @@ Each layer adds detail. Claude reads what it needs for the current task, not eve
 
 ```
 project-root/
-├── CLAUDE.md                   # Living instruction manual
+├── CLAUDE.md                   # Technical instruction manual
 │                               # Stack, skills mapping, conventions, learned rules
+│                               # References to where things live in code
 │                               # Points to → PRD.md for product context
 │
 ├── docs/
-│   ├── PRD.md                  # Condensed product knowledge (~200-300 lines)
-│   │                           # Architecture, data model, stack, phase plan
-│   │                           # Points to → features/*.md for details
+│   ├── PRD.md                  # Pure product knowledge (~200-300 lines)
+│   │                           # What, for whom, why, how it works (user perspective)
+│   │                           # High-level architecture (system diagram, not implementation)
+│   │                           # Conceptual data model (entities + relationships, not schemas)
+│   │                           # Feature index → points to features/*.md
+│   │                           # Build phases, success criteria
 │   │
 │   ├── scope.md                # Original vision document (from Phase 0)
-│   │                           # Kept as historical reference
+│   │                           # Historical reference after PRD is generated
 │   │
 │   ├── features/               # One file per feature (~300 lines max)
-│   │   ├── dashboard.md        # Full spec: states, data, edge cases, decisions
-│   │   ├── discover.md         # Full spec: map, search, filters
-│   │   ├── tracking.md         # Full spec: GPS, offline, states
-│   │   ├── history.md          # Full spec: list, stats, filters
-│   │   ├── onboarding.md       # Full spec: steps, optional fields, flow
+│   │   ├── dashboard.md        # Product spec: flows, states, business rules, decisions
+│   │   ├── discover.md         # Product spec: map, search, filters
+│   │   ├── tracking.md         # Product spec: GPS, offline, states
+│   │   ├── history.md          # Product spec: list, stats, filters
+│   │   ├── onboarding.md       # Product spec: steps, optional fields, flow
 │   │   └── ...                 # One file per feature/screen
 │   │
 │   ├── STATE.md                # Progress tracker (~30 lines, never >50)
 │   └── BACKLOG.md              # Deferred work
+│
+└── src/                        # Code = source of truth for implementation
+    ├── schema.ts               # Data model (actual types, fields, constraints)
+    ├── routes/                  # Routing (actual paths, guards)
+    └── ...                     # Everything else
 ```
 
 ---
 
 ## What Goes Where
 
-### CLAUDE.md (the instruction manual)
+### CLAUDE.md (technical instruction manual)
 
 The first thing Claude reads every session. Small, authoritative, grows organically.
 
 **Contains:**
 - Project name + one-line description
 - Tech stack (with versions)
-- Reference: "Product context → `docs/PRD.md`"
 - Skills mapping table (MANDATORY — which skill to read per task type)
 - Code conventions (naming, folder structure, patterns)
-- Design system reference
+- **Code references** — where things live:
+  - "Schema: `supabase/migrations/`"
+  - "Routes: `src/router.tsx`"
+  - "Design tokens: `src/index.css` @theme block"
+  - "Product context: `docs/PRD.md`"
 - **Learned Rules** section (grows with every `/br:learn` correction, each dated)
 
-**Does NOT contain:** Feature specs, architecture diagrams, data model details. Those live in PRD.md and features/.
+**Does NOT contain:** Product knowledge (that's PRD.md), feature specs (that's features/), implementation details (that's code).
 
 **Size:** Starts at ~50 lines. Grows to ~100-150 over the life of the project.
 
-### PRD.md (condensed product knowledge)
+### PRD.md (pure product knowledge)
 
-The "map" of the product. Enough to understand the whole system, with pointers to feature files for depth.
+The "map" of the product — what we're building, for whom, why, and how it works from the user's perspective. A PM's deliverable to a dev.
 
 **Contains:**
 1. Project summary (what, for whom, why)
 2. Business goals and success metrics
 3. User personas
 4. MVP scope and exclusions
-5. System architecture (ASCII diagram)
-6. Project structure (file tree)
-7. Data model (schemas, relationships)
-8. Feature index (table with links to `features/*.md`)
-9. Non-functional requirements
-10. Design system reference
-11. Build phases (ordered, typed creative/systematic, success criteria)
-12. Research areas status
+5. High-level architecture (system diagram — boxes and arrows, not code)
+6. Conceptual data model (entities, relationships, business rules — NOT schemas)
+7. Feature index (table with links to `features/*.md`)
+8. Non-functional requirements (performance targets, accessibility level)
+9. Design direction (inspiration, color palette, mobile-first — NOT design tokens)
+10. Build phases (ordered, typed creative/systematic, success criteria)
+11. Research areas status
 
-**Does NOT contain:** Detailed per-screen specs, state descriptions, edge cases per feature. Those live in feature files.
+**Does NOT contain:**
+- Tech stack, versions, dependencies (that's CLAUDE.md)
+- Table schemas, column types, migrations (that's code)
+- Routes, endpoints, API contracts (that's code)
+- Design tokens, CSS variables (that's code)
+- Code conventions, folder structure patterns (that's CLAUDE.md)
 
-**Size:** ~200-300 lines. Condensed. If it grows past 400, something belongs in a feature file.
+**Size:** ~200-300 lines. If it grows past 400, something belongs in a feature file or in code.
 
-### docs/features/*.md (feature specs)
+### docs/features/*.md (product specs per feature)
 
-One file per feature or screen. The complete specification — everything Claude needs to implement or modify that feature.
+One file per feature or screen. Everything a dev (human or AI) needs to understand what the feature should do — not how to implement it.
 
 **Contains:**
 - Feature name and purpose (one paragraph)
 - User story / flow (what the user does, step by step)
 - States: empty, partial, full, error, loading, offline
-- Data requirements (which tables/fields, what API calls)
-- UI description (layout, components, interactions)
-- Edge cases and business rules
+- Business rules and edge cases ("goals are optional — when not set, streak is inactive")
+- Data needs at conceptual level ("needs user's weekly goal and this week's tracked km")
+- UX description (layout intent, key interactions — not component names)
 - Decision log (choices made during scope/PRD, with rationale)
 - Related features (links to other feature files that interact)
-- PRD section reference (which PRD section this expands)
 
-**Does NOT contain:** Architecture decisions, data model definitions, stack choices. Those live in PRD.md.
+**Does NOT contain:**
+- Component names, CSS classes, implementation patterns (that's code)
+- API call details, query structures (that's code)
+- Schema field names, types (that's code)
 
 **Size:** ~100-300 lines per file. If a feature file exceeds 300 lines, consider splitting into sub-features.
 
 ### docs/STATE.md (progress tracker)
 
-Lightweight digest of where the project is. Auto-updated after each task.
+Lightweight digest. Auto-updated after each task.
 
 **Contains:**
 - Current focus (phase + status)
@@ -131,34 +193,52 @@ Lightweight digest of where the project is. Auto-updated after each task.
 - Phase verification records (appended when phases complete)
 - Last session / next action
 
-**Size:** ~30 lines normally. Never exceeds 50. If it grows, old verification records can be archived.
+**Size:** ~30 lines. Never exceeds 50.
 
 ### docs/BACKLOG.md (deferred work)
 
-Everything explicitly deferred — from scope's v2 section and from things captured during build.
+Everything explicitly deferred.
 
 **Contains:**
 - Deferred from Scope (with why deferred + revisit trigger)
-- Captured During Build (with context where it came up + priority)
+- Captured During Build (with context + priority)
 
 ---
 
 ## Why This Structure Works
 
+### For the PM → Dev handoff
+- PM creates PRD.md + feature files (product knowledge)
+- Dev reads them, understands the product, implements from code
+- No "ask the PM" needed — everything is in the repo
+- Decisions are documented with rationale — dev understands not just what, but why
+
 ### For Claude (AI)
-- **Task: "Build the dashboard"** → Claude reads CLAUDE.md (skills, conventions) → reads `features/dashboard.md` (full spec) → implements. Never reads 1700 lines.
-- **Task: "Add a field to the data model"** → Claude reads PRD.md (data model section) → updates schema → updates relevant feature files.
-- **Progressive context loading** — only reads what's needed, keeps context window clean.
+- **Task: "Build the dashboard"** → reads CLAUDE.md (skills, conventions) → reads `features/dashboard.md` (product spec) → reads code for current state → implements
+- **No 1700-line document** — reads ~50 + ~300 lines per task
+- **No stale information** — docs describe product intent, code describes implementation reality
+- **References in CLAUDE.md** tell Claude where to find things in the codebase
 
-### For Humans
-- **New team member** → reads PRD.md for overview, then feature files for depth. Self-documenting project.
-- **PM reviewing progress** → reads STATE.md (30 lines) for status, feature files for specs.
-- **Decision archaeology** → every feature file has a decision log. "Why did we make goals optional?" → check `features/dashboard.md` decision log.
+### For the project
+- **No drift** — docs and code don't duplicate each other, so they can't contradict
+- **Self-documenting** — new team member reads PRD for overview, feature files for depth, code for implementation
+- **"Confluence in the repo"** — no external tools needed
+- **Feature-level ownership** — one person can own `features/tracking.md` without touching the rest
+- **Decision archaeology** — every feature file has a decision log with rationale
 
-### For Collaboration
-- **"Confluence in the repo"** — no external docs needed, everything lives with the code.
-- **Feature-level ownership** — one person can own `features/tracking.md` without touching the rest.
-- **Easy to review** — PR changes one feature file, reviewer reads one file for context.
+---
+
+## How Docs and Code Stay in Sync
+
+The main risk: code references in CLAUDE.md break when files move.
+
+Mitigations:
+1. **CLAUDE.md references are high-level** — "Schema: `supabase/migrations/`" not "User table: `supabase/migrations/20260315_create_users.sql` line 42"
+2. **Learned Rules catch drift** — when Claude discovers a reference is wrong, it becomes a `/br:learn` correction
+3. **Feature files don't reference code** — they describe product behavior, not implementation. They can't go stale from a refactor.
+4. **PRD.md is conceptual** — "User has many Dogs" doesn't change when you rename a column
+
+The only document that can drift is CLAUDE.md (code references), and it's small enough (~50-150 lines) that drift is easy to catch and fix.
 
 ---
 
@@ -166,16 +246,17 @@ Everything explicitly deferred — from scope's v2 section and from things captu
 
 During **PRD generation** (Phase 1):
 
-1. Claude generates the condensed PRD.md with feature index
+1. Claude generates condensed PRD.md with feature index
 2. For each feature in the index, Claude generates a `features/<name>.md` file
 3. User iterates on individual feature files (easier to review than a monolith)
 4. Each iteration updates one file, not the whole PRD
 
 During **Build** (Phase 3):
 
-5. Implementation decisions get added to the feature file's decision log
-6. Edge cases discovered during build get added to the feature file
-7. Feature files evolve with the code — living documentation
+5. Business rule discoveries get added to the feature file's decision log
+6. Edge cases found during build get added to the feature file
+7. Feature files evolve with the product — living product documentation
+8. Implementation details stay in code — feature files never describe how, only what and why
 
 ---
 
@@ -183,12 +264,12 @@ During **Build** (Phase 3):
 
 `docs/scope.md` is the **input** to PRD generation. It's the raw product vision from Phase 0.
 
-After PRD.md and feature files are generated, scope.md becomes historical reference — "this is what we started with." It's not actively referenced during build. PRD.md and feature files are the active documents.
+After PRD.md and feature files are generated, scope.md becomes historical reference — "this is what we started with." PRD.md and feature files are the active documents during build.
 
 ```
 Phase 0: scope.md (vision, decisions, research areas)
-           ↓
-Phase 1: PRD.md + features/*.md (technical specs, implementation-ready)
-           ↓
-Phase 3: Build (Claude reads PRD.md + relevant feature file per task)
+           ↓ feeds into
+Phase 1: PRD.md (pure product) + features/*.md (per-feature specs)
+           ↓ referenced during
+Phase 3: Build (Claude reads CLAUDE.md + relevant feature file + code)
 ```

@@ -163,6 +163,22 @@ Chain: `CLAUDE.md` → `PRD.md` → `features/*.md`
 
 **Source:** Conversation with collaborator (megaczlowiekkappa9). Full rationale in [architecture.md](architecture.md).
 
+### Decision 11: Docs for product, code for implementation — reference pattern
+
+**What:** Documents describe **what and why** (product knowledge). Code describes **how** (implementation). Documents never duplicate what the code says — they reference it instead.
+
+- PRD.md is purely product: what, for whom, why, user perspective. No tech stack, no schemas, no routes.
+- CLAUDE.md keeps technical context: stack, conventions, and **references to where things live in code** ("Schema: `supabase/migrations/`").
+- Feature files describe product behavior and business rules, never implementation details.
+- Conceptual data model in docs ("User has many Dogs, goals optional") — stable, doesn't drift with column renames.
+- Implementation-level details (schemas, routes, tokens) live only in code.
+
+**Why:** Two problems solved at once:
+1. **Drift** — when docs duplicate code, they diverge. Docs say one thing, code says another. References can't go stale from a refactor (conceptual level is stable).
+2. **PM → dev handoff** — PM creates product docs (PRD + features/). Dev reads them to understand the product, reads code for implementation. Everything in repo, no external tools, no "ask the PM."
+
+**Source:** Conversation with collaborator (megaczlowiekkappa9) + Kacper's insight about handoff workflow and Vitis design system reference pattern.
+
 ---
 
 ## Phase 3: What's Still Open
