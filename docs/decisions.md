@@ -52,7 +52,7 @@ System: 12 agents, 50+ CLI commands, 28 templates, 100+ files.
 4. **Deferred work tracking** — explicit, not in human's head
 5. **Systematic execution** — worked well for Vitis hardening sprint (17 requirements, 4 phases)
 
-Full analysis: [analysis.md](analysis.md)
+Full analysis: [research/analysis.md](research/analysis.md)
 
 ---
 
@@ -229,7 +229,12 @@ During build, the workflow loads skills from the feature file — Claude can't s
 
 | Document | What it is | Status |
 |----------|-----------|--------|
-| [scope.md](scope.md) | Full system scope — phases, flows, artifacts, principles | In progress (open topics remain) |
-| [analysis.md](analysis.md) | Deep comparison of Kacper's approach vs GSD | Complete |
-| [architecture.md](architecture.md) | How GSR projects are structured (PRD, features/, CLAUDE.md) | In progress |
-| [plan.md](plan.md) | This file — how we got here, decisions made, what's next | Living document |
+| [vision.md](vision.md) | What GSR is, principles, phase overview | Complete |
+| [phases/0-scope-shaping.md](phases/0-scope-shaping.md) | Phase 0 spec | Complete |
+| [phases/1-prd-generation.md](phases/1-prd-generation.md) | Phase 1 spec | Complete |
+| [phases/2-project-init.md](phases/2-project-init.md) | Phase 2 spec | Complete |
+| [phases/3-build.md](phases/3-build.md) | Phase 3 spec | Complete |
+| [phases/4-verification.md](phases/4-verification.md) | Phase 4 spec | Complete |
+| [architecture.md](architecture.md) | How GSR projects are structured | Complete |
+| [research/analysis.md](research/analysis.md) | Kacper's approach vs GSD comparison | Complete |
+| [decisions.md](decisions.md) | This file — decisions made, what's next | Living document |
