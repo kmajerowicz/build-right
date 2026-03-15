@@ -212,16 +212,63 @@ During build, the workflow loads skills from the feature file — Claude can't s
 
 ---
 
-## Phase 3: What's Still Open
+## Phase 3: Plugin Architecture Decisions
+
+### Decision 13: GSR becomes a standalone Claude Code plugin
+
+**What:** GSR is packaged as a Claude Code plugin (`.claude-plugin/`) that anyone can install. No dependency on superpowers or other plugins. The `build-right` repo transforms into the plugin itself — existing design docs move to `docs/design/` as internal reference.
+
+**Why:** The goal is to make GSR's workflow reusable. A plugin is the distribution mechanism Claude Code supports. Standalone means no install conflicts, no version coupling, and the plugin can be tested in isolation. The superpowers plugin was analyzed as an architecture reference — GSR follows the same patterns (skills, commands, hooks, agents) but owns its entire workflow.
+
+**Impact:** Repo structure changes — adds `.claude-plugin/`, `hooks/`, `commands/`, `skills/`, `templates/`, `agents/` directories. Existing docs move to `docs/design/`.
+
+### Decision 14: Explicit commands, no auto-triggering in MVP
+
+**What:** 5 explicit commands: `/gsr:scope`, `/gsr:prd`, `/gsr:build`, `/gsr:verify`, `/gsr:learn`. User types the command to enter a phase. Skills do not auto-trigger based on context detection.
+
+**Why:** Testability — each phase can be tested in isolation without triggering others. Predictability — user always knows which workflow is active. Superpowers evolved from commands to auto-triggering, proving commands-first is a valid starting point. Auto-triggering can be added later without breaking the command interface.
+
+**Impact:** Each command is a thin wrapper (commands/*.md) that invokes the corresponding skill (skills/*/SKILL.md). Commands know what comes next and tell the user to clear context and run the next command.
+
+### Decision 15: Phase 1 (PRD) + Phase 2 (Init) merged into `/gsr:prd`
+
+**What:** `/gsr:prd` generates PRD.md + feature files AND creates project infrastructure (CLAUDE.md, STATE.md, BACKLOG.md, techstack.md) in one flow. No separate `/gsr:init` command.
+
+**Why:** Phase 2 (init) is a mechanical step — generate 4 files from the PRD. There's no product decision or human judgment involved. Separating it into its own command adds friction without adding value. The user finishes PRD generation, the system creates the infrastructure, done. One context window, one command.
+
+**Impact:** Phase specs remain as separate design docs (phases/1 and phases/2) for reference, but the plugin implements them as a single skill. The PRD skill suggests the user clears context and runs `/gsr:build` when complete.
+
+### Decision 16: Build is per-feature, within build phases
+
+**What:** `/gsr:build` shows available features from `docs/features/*.md` with their status from STATE.md. User picks a specific feature to build. STATE.md tracks progress at two granularity levels: phases (groups of related features, defined in PRD) and features (individual units of work).
+
+**Why:** Features are the natural unit of work. "Build the dashboard" is more concrete than "execute build phase 2." But phases still matter — they group related features ("Core UI" contains onboarding + dashboard) and define the order of work. Both levels provide clear visibility into what's done and what's left.
+
+**Impact:** STATE.md tracks both phase progress and per-feature progress within the active phase. Verification (`/gsr:verify`) works at both levels — verify a single feature or an entire phase.
+
+### Decision 17: `/gsr:learn` is the Start B entry point
+
+**What:** When a user has an existing project, they run `/gsr:learn` first. It scans the codebase (structure, tech stack, conventions, patterns), scans existing docs, populates CLAUDE.md with references and conventions, and produces an assessment: what exists, what's missing, and which command to run next.
+
+**Why:** Start B ("Something Exists") was described conceptually in the design docs but lacked a concrete mechanism. `/gsr:learn` fills that gap — it's the bridge between an existing codebase and the GSR workflow. It also serves ongoing projects: re-run it when the codebase has changed significantly.
+
+**Impact:** Start B flow becomes: `/gsr:learn` → assessment → `/gsr:scope` (if scope needed) or `/gsr:prd` (if scope exists). The learn skill is also referenced in architecture.md line 132 where `/gsr:learn` is mentioned for Learned Rules — that usage is separate (corrections during build) from this usage (initial project indexing).
+
+### Decision 18: Subagents for parallelism, not agentic teams
+
+**What:** Independent tasks within phases (competitive research, systematic build tasks, verification checks) use subagents dispatched by the skill. Not Claude Code agentic teams.
+
+**Why:** Agentic teams are experimental, higher cost (each is a full session), and overkill for GSR's parallelization needs. GSR's parallel tasks are independent and report-back — subagents fit perfectly. Each phase is a separate skill with dependencies between them, not a team that needs coordination. Agentic teams could be revisited for Phase 0 research gathering if subagents prove insufficient.
+
+**Impact:** Resolves backlog item #6 (sweep parallelization). Systematic build mode dispatches subagents for independent tasks. Verification dispatches subagents for independent checks (grep, tests, build, TS errors).
+
+---
+
+## Phase 4: What's Still Open
 
 | # | Topic | Status |
 |---|-------|--------|
-| 1 | CLAUDE.md + skills setup | **Resolved** — Decision 12. Skills in feature files, enforced by workflow. CLAUDE.md = conventions + references + learned rules. Tech stack in techstack.md. |
-| 2 | Naming | **Resolved** — Get Shit Right (GSR). Commands: `/gsr:*` |
-| 3 | Command surface | Open — define last, after process is clear |
-| 4 | Done signals | Open |
-| 5 | Start B details | Open |
-| 6 | Sweep parallelization | Open |
+| 4 | Done signals (project-level) | **Partially resolved** — per-feature done is clear (Decision 16). "When is the whole project done?" still open. |
 
 ---
 
@@ -229,12 +276,13 @@ During build, the workflow loads skills from the feature file — Claude can't s
 
 | Document | What it is | Status |
 |----------|-----------|--------|
-| [vision.md](vision.md) | What GSR is, principles, phase overview | Complete |
+| [vision.md](vision.md) | What GSR is, principles, phase overview | Complete — updated for plugin decisions |
 | [phases/0-scope-shaping.md](phases/0-scope-shaping.md) | Phase 0 spec | Complete |
 | [phases/1-prd-generation.md](phases/1-prd-generation.md) | Phase 1 spec | Complete |
-| [phases/2-project-init.md](phases/2-project-init.md) | Phase 2 spec | Complete |
-| [phases/3-build.md](phases/3-build.md) | Phase 3 spec | Complete |
-| [phases/4-verification.md](phases/4-verification.md) | Phase 4 spec | Complete |
-| [architecture.md](architecture.md) | How GSR projects are structured | Complete |
+| [phases/2-project-init.md](phases/2-project-init.md) | Phase 2 spec (merged into Phase 1 — Decision 15) | Complete |
+| [phases/3-build.md](phases/3-build.md) | Phase 3 spec | Complete — updated for per-feature build |
+| [phases/4-verification.md](phases/4-verification.md) | Phase 4 spec | Complete — updated for per-feature verification |
+| [architecture.md](architecture.md) | How GSR projects are structured | Complete — updated for per-feature STATE.md |
 | [research/analysis.md](research/analysis.md) | Kacper's approach vs GSD comparison | Complete |
+| [plans/2026-03-15-gsr-plugin-design.md](plans/2026-03-15-gsr-plugin-design.md) | Plugin architecture design | Complete |
 | [decisions.md](decisions.md) | This file — decisions made, what's next | Living document |

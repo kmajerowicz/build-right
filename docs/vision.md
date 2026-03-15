@@ -25,7 +25,7 @@ User has materials (client brief, scope doc, partial spec, existing codebase). T
 
 **Flow:** Materials → Map & Assess → Improve or Proceed → PRD → Build
 
-**After the entry point, both paths converge into the same pipeline:** PRD → Init → Build
+**After the entry point, both paths converge into the same pipeline:** PRD (+ Init) → Build
 
 ---
 
@@ -41,13 +41,31 @@ User has materials (client brief, scope doc, partial spec, existing codebase). T
 
 ---
 
+## Commands
+
+GSR is a Claude Code plugin with 5 explicit commands:
+
+| Command | What it does | Phases |
+|---------|-------------|--------|
+| `/gsr:learn` | Index existing project → populate CLAUDE.md (Start B entry point) | - |
+| `/gsr:scope` | Idea or materials → structured scope document | Phase 0 |
+| `/gsr:prd` | Scope → condensed PRD + feature files + project init | Phase 1 + 2 |
+| `/gsr:build` | Pick feature → pick mode (creative/systematic) → build | Phase 3 |
+| `/gsr:verify` | Verify feature against PRD success criteria | Phase 4 |
+
+Each command knows what comes next and tells the user. Context clearing between commands keeps the window fresh.
+
+See [Plugin Design](plans/2026-03-15-gsr-plugin-design.md) for full architecture.
+
+---
+
 ## Design Principles
 
 1. **Human thinks, AI executes.** Product decisions are made by the human. Always.
 2. **PRD is the constitution.** Every task traces back to a feature file.
 3. **Corrections compound.** CLAUDE.md Learned Rules grow with every correction. No fresh-context executors.
 4. **Track progress without managing it.** STATE.md updates automatically. Human never updates a spreadsheet.
-5. **Two modes, zero config.** Creative = human-in-the-loop. Systematic = agent-driven. Selected by command, not toggle.
+5. **Two modes, zero config.** Creative = human-in-the-loop. Systematic = agent-driven. Selected by prompt within `/gsr:build`, not toggle.
 6. **Parallelize the independent.** Multiple agents for independent research/tasks. Sequential for dependent work.
 7. **Adaptive, not prescriptive.** Mapping in Start B adapts to the project. Questions adapt to user's domain expertise. No hardcoded checklists for things that vary per project.
 8. **Docs for product, code for implementation.** Documents describe what and why. Code describes how. Docs reference code, never duplicate it.
@@ -58,6 +76,7 @@ User has materials (client brief, scope doc, partial spec, existing codebase). T
 
 ## Key References
 
+- [plans/2026-03-15-gsr-plugin-design.md](plans/2026-03-15-gsr-plugin-design.md) — Plugin architecture design
 - [architecture.md](architecture.md) — How GSR projects are structured (file layout, progressive disclosure, docs vs code)
 - [decisions.md](decisions.md) — All decisions made during design, with rationale
 - [research/analysis.md](research/analysis.md) — Original comparison: Kacper's approach vs GSD

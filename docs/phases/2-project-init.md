@@ -1,5 +1,7 @@
 # Phase 2: Project Initialization
 
+> **Note:** This phase is merged into `/gsr:prd` (Decision 15). Project init runs automatically at the end of PRD generation. This spec is preserved as design reference.
+
 **Creates the project tracking infrastructure from the PRD. One-time automated step.**
 
 ---

@@ -6,37 +6,20 @@ Open topics, questions, and ideas for discussion. Anyone can add items or respon
 
 ## Open Topics (Need Decision)
 
-### #4 Done signals
-When is a build phase done? When is the whole project done? How does STATE.md reflect this?
+### #4 Done signals (partially resolved)
+When is the whole project done? Per-feature done signals are resolved (feature status in STATE.md + per-feature verification). But "project complete" signal is still open — all features verified? Explicit user declaration?
 
-**Status:** Not discussed yet
-
----
-
-### #5 Start B details
-The "map and assess" flow when materials exist. How exactly is quality evaluated? What triggers "improve" vs "proceed"?
-
-**Status:** Lightly discussed — adaptive not checklist-based, but needs more specifics
-
----
-
-### #6 Sweep parallelization
-How exactly do parallel agents share CLAUDE.md context while running concurrently in systematic mode?
-
-**Status:** Not discussed yet
-
----
-
-### #3 Command surface
-What commands exist (`/gsr:*`), what each one does, arguments, flags. Define last after process is fully clear.
-
-**Status:** Blocked by #4, #5, #6
+**Status:** Partially resolved — per-feature tracking decided, project-level completion still open
 
 ---
 
 ## Ideas / To Discuss
 
-_Add items here for the next discussion session._
+### Agent definitions
+What specific subagent roles are needed beyond research and systematic task execution? Define during implementation.
+
+### Partial GSR setup handling
+How does `/gsr:learn` handle projects with partial GSR setup (e.g., has CLAUDE.md but no PRD)?
 
 ---
 
@@ -44,3 +27,6 @@ _Add items here for the next discussion session._
 
 - #1 CLAUDE.md + skills setup → Decision 12
 - #2 Naming → Get Shit Right (GSR)
+- #3 Command surface → [Plugin Design Doc](plans/2026-03-15-gsr-plugin-design.md). 5 commands: `/gsr:scope`, `/gsr:prd`, `/gsr:build`, `/gsr:verify`, `/gsr:learn`
+- #5 Start B details → [Plugin Design Doc](plans/2026-03-15-gsr-plugin-design.md). `/gsr:learn` indexes existing project, populates CLAUDE.md, assesses what exists, tells user next step
+- #6 Sweep parallelization → [Plugin Design Doc](plans/2026-03-15-gsr-plugin-design.md). Subagents for independent tasks within phases, not agentic teams
