@@ -30,7 +30,7 @@ How exactly do parallel agents share CLAUDE.md context while running concurrentl
 ### #3 Command surface
 What commands exist (`/gsr:*`), what each one does, arguments, flags. Define last after process is fully clear.
 
-**Status:** Blocked by #4, #5, #6
+**Status:** Blocked by #4, #5, #6. Note: Start C (existing product) will need its own command (e.g. `/gsr:feature`).
 
 ---
 

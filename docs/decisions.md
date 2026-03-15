@@ -210,6 +210,21 @@ During build, the workflow loads skills from the feature file — Claude can't s
 
 **Research area identification in scope:** Claude actively flags assumptions throughout scope shaping (steps 1-6) with inline markers. During step 6 (consistency audit), Claude does an explicit research sweep — collecting all flagged assumptions and triaging them (blocking scope / blocking PRD / blocking build). User can also flag research areas at any point.
 
+### Decision 13: Start C — GSR for existing products
+
+**What:** GSR is not just for building from scratch. Start C introduces GSR into an existing product for building new features or developing functionality.
+
+Flow: Codebase Onboarding → Feature Scope → Feature File → Build → Verify
+
+- **Codebase Onboarding** (runs once per product) — map codebase, create CLAUDE.md + docs structure
+- **Feature Scope** — same as Phase 0 but at feature level (goal, vision, user, why, what)
+- **Feature File** — create docs/features/<name>.md with spec + skills
+- **Build + Verify** — identical to Phases 3 and 4
+
+**Why:** Most real work is adding features to existing products, not building from scratch. The good practices (feature files, skills, human-in-the-loop, verification) are equally valuable there. GSR adoption is gradual — no need to retroactively document everything, feature files build up over time.
+
+**Impact:** Third entry point. Needs its own command. Vision.md updated from "Two Entry Points" to "Three Entry Points." New phase spec: `phases/0c-existing-product.md`.
+
 ---
 
 ## Phase 3: What's Still Open
