@@ -70,7 +70,7 @@ Both parties review. Scope is "done" when neither finds meaningful issues in two
 
 **Process rules:**
 - Batch decisions, then update document (not mixed in same message)
-- Track assumptions from message 1 — every unverified statement gets flagged
+- **Active assumption flagging** — throughout steps 1-6, Claude flags every unverified statement inline ("⚠️ assumes PTTK has digital data"). In step 6 (consistency audit), Claude does an explicit research sweep: collects all flagged assumptions and triages them (blocking scope / blocking PRD / blocking build). User can also flag research areas at any point.
 - Claude drives ~70% through questions, user drives ~30% through corrections
 - User's strongest contributions: corrections and domain expertise
 - Claude's strongest contributions: structure, edge cases, "what happens when X is empty/missing"

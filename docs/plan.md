@@ -197,6 +197,19 @@ During build, the workflow loads skills from the feature file — Claude can't s
 
 **Impact:** CLAUDE.md becomes leaner (~30-40 lines) — just conventions, references, and learned rules. Tech stack moves to `docs/techstack.md`. Skills mapping removed entirely.
 
+### Decision 12a: Skills — resolved sub-questions
+
+**Skills.sh access:** Claude browses skills.sh via WebFetch during PRD generation. Workflow instruction includes the skills.sh link. No API dependency.
+
+**Missing skills for niche tech:** Skip gracefully. Feature file notes "⚠️ No marketplace skill found for [tech]." Skills are boosters, not blockers. Niche tech patterns accumulate in CLAUDE.md Learned Rules through corrections over time.
+
+**Per-feature + project-wide:** Two layers:
+- `docs/techstack.md` lists project-wide skills (e.g. `responsive-design` for any mobile-first app)
+- Each feature file lists feature-specific skills
+- Workflow loads both: project-wide + feature-specific
+
+**Research area identification in scope:** Claude actively flags assumptions throughout scope shaping (steps 1-6) with inline markers. During step 6 (consistency audit), Claude does an explicit research sweep — collecting all flagged assumptions and triaging them (blocking scope / blocking PRD / blocking build). User can also flag research areas at any point.
+
 ---
 
 ## Phase 3: What's Still Open

@@ -183,11 +183,19 @@ One file per feature or screen. Everything a dev (human or AI) needs to understa
 
 **Skills matching flow** (during PRD generation):
 1. Feature scope confirmed
-2. System searches skills.sh marketplace for ideal skills for this feature
+2. System browses skills.sh via WebFetch for ideal skills for this feature
 3. Compares with already installed skills (`.agents/skills/`)
 4. Recommends missing skills for installation
 5. Adds confirmed skills to the feature file's Skills section
-6. During build, the workflow loads these skills automatically — Claude can't skip them
+6. If no marketplace skill exists for a technology → skip gracefully, note in feature file: "⚠️ No marketplace skill found for [tech] — rely on docs and learned rules"
+7. During build, the workflow loads these skills automatically — Claude can't skip them
+
+**Two layers of skills:**
+- **Project-wide** (in `docs/techstack.md`) — skills that apply to every feature (e.g. `responsive-design` for mobile-first apps)
+- **Feature-specific** (in each feature file) — skills unique to that feature's needs
+- Workflow loads both: project-wide + feature-specific
+
+Skills are **boosters, not blockers** — the system works without them. Niche tech patterns accumulate in CLAUDE.md Learned Rules through corrections over time.
 
 **Size:** ~100-300 lines per file. If a feature file exceeds 300 lines, consider splitting into sub-features.
 
