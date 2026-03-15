@@ -27,9 +27,10 @@ Map the existing product so GSR can work with it. This step runs once per produc
 
 ### What happens
 1. **Map the codebase** — architecture, conventions, stack, folder structure (parallelizable — multiple agents)
-2. **Create `CLAUDE.md`** if it doesn't exist — conventions, code references, learned rules. If it exists, read and validate.
-3. **Create `docs/techstack.md`** if it doesn't exist — stack, versions, project-wide skills
-4. **Create `docs/` structure** if it doesn't exist — the GSR docs folder for feature files, STATE.md, BACKLOG.md
+2. **Verify access & credentials** — based on the mapped stack, ask user about access to all external services (Supabase, Vercel, APIs, etc.). For existing products some may already be configured — check `.env`, config files. Flag missing access as blockers.
+3. **Create `CLAUDE.md`** if it doesn't exist — conventions, code references, learned rules. If it exists, read and validate.
+4. **Create `docs/techstack.md`** if it doesn't exist — stack, versions, project-wide skills
+5. **Create `docs/` structure** if it doesn't exist — the GSR docs folder for feature files, STATE.md, BACKLOG.md
 
 ### What it produces
 ```
