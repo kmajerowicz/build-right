@@ -1,12 +1,12 @@
-# Build Right — Project Architecture
+# Get Shit Right — Project Architecture
 
-**How a BR-managed project is structured.**
+**How a GSR-managed project is structured.**
 
 ---
 
 ## Core Principle: Docs for Product, Code for Implementation
 
-Documents and code serve different audiences and different purposes. When they overlap, information drifts — the doc says one thing, the code says another. BR solves this with a clear separation:
+Documents and code serve different audiences and different purposes. When they overlap, information drifts — the doc says one thing, the code says another. GSR solves this with a clear separation:
 
 | In documents (product knowledge) | In code (implementation) |
 |---|---|
@@ -46,7 +46,7 @@ This is the same pattern Kacper used in Vitis with `docs/VITIS-DESIGN-SYSTEM.md`
 
 ## The PM → Dev Handoff
 
-BR is designed for a workflow where **PM prepares product docs, dev executes**.
+GSR is designed for a workflow where **PM prepares product docs, dev executes**.
 
 The PM's deliverables:
 - `docs/scope.md` — vision, decisions, research areas (Phase 0)
@@ -129,7 +129,7 @@ The first thing Claude reads every session. Small, authoritative, grows organica
   - "Routes: `src/router.tsx`"
   - "Design tokens: `src/index.css` @theme block"
 - Code conventions (naming, folder structure, patterns)
-- **Learned Rules** section (grows with every `/br:learn` correction, each dated)
+- **Learned Rules** section (grows with every `/gsr:learn` correction, each dated)
 
 **Does NOT contain:** Tech stack details (that's techstack.md), skills mapping (skills live in feature files), product knowledge (that's PRD.md), feature specs (that's features/), implementation details (that's code).
 
@@ -252,7 +252,7 @@ The main risk: code references in CLAUDE.md break when files move.
 
 Mitigations:
 1. **CLAUDE.md references are high-level** — "Schema: `supabase/migrations/`" not "User table: `supabase/migrations/20260315_create_users.sql` line 42"
-2. **Learned Rules catch drift** — when Claude discovers a reference is wrong, it becomes a `/br:learn` correction
+2. **Learned Rules catch drift** — when Claude discovers a reference is wrong, it becomes a `/gsr:learn` correction
 3. **Feature files don't reference code** — they describe product behavior, not implementation. They can't go stale from a refactor.
 4. **PRD.md is conceptual** — "User has many Dogs" doesn't change when you rename a column
 

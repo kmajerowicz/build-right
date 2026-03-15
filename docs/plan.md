@@ -1,4 +1,4 @@
-# Build Right — How We Got Here
+# Get Shit Right — How We Got Here
 
 **The evolution from analysis to system design.**
 
@@ -217,7 +217,7 @@ During build, the workflow loads skills from the feature file — Claude can't s
 | # | Topic | Status |
 |---|-------|--------|
 | 1 | CLAUDE.md + skills setup | **Resolved** — Decision 12. Skills in feature files, enforced by workflow. CLAUDE.md = conventions + references + learned rules. Tech stack in techstack.md. |
-| 2 | Naming | Open |
+| 2 | Naming | **Resolved** — Get Shit Right (GSR). Commands: `/gsr:*` |
 | 3 | Command surface | Open — define last, after process is clear |
 | 4 | Done signals | Open |
 | 5 | Start B details | Open |
@@ -231,5 +231,5 @@ During build, the workflow loads skills from the feature file — Claude can't s
 |----------|-----------|--------|
 | [scope.md](scope.md) | Full system scope — phases, flows, artifacts, principles | In progress (open topics remain) |
 | [analysis.md](analysis.md) | Deep comparison of Kacper's approach vs GSD | Complete |
-| [architecture.md](architecture.md) | How BR projects are structured (PRD, features/, CLAUDE.md) | In progress |
+| [architecture.md](architecture.md) | How GSR projects are structured (PRD, features/, CLAUDE.md) | In progress |
 | [plan.md](plan.md) | This file — how we got here, decisions made, what's next | Living document |

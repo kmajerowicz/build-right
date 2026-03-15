@@ -1,4 +1,4 @@
-# Build Right (BR) — System Scope
+# Get Shit Right (GSR) — System Scope
 
 ## Vision
 
@@ -289,7 +289,7 @@ Appended to STATE.md as phase completion record. No separate VERIFICATION.md fil
 ### Per-project file structure
 ```
 project-root/
-├── CLAUDE.md                   # Living instruction manual (grows with /br:learn)
+├── CLAUDE.md                   # Living instruction manual (grows with /gsr:learn)
 ├── docs/
 │   ├── scope.md                # Original vision (from Phase 0, historical reference)
 │   ├── PRD.md                  # Condensed product knowledge (~200-300 lines)
@@ -313,7 +313,7 @@ Progressive disclosure, not a monolith. Full details: [architecture.md](architec
 
 ### CLAUDE.md (grows organically)
 - Starts at ~50 lines from template
-- Grows with every `/br:learn` correction
+- Grows with every `/gsr:learn` correction
 - Contains: stack, skills mapping (MANDATORY), conventions, design system reference, Learned Rules section
 - Read before every task
 
@@ -352,7 +352,7 @@ Progressive disclosure, not a monolith. Full details: [architecture.md](architec
 ## Open Topics (Still Need Discussion)
 
 1. **CLAUDE.md + skills setup** — How exactly are skills installed and mapped during init? Auto-detected from stack or user-configured?
-2. **Naming** — "Build Right" is a working title. Final name TBD.
+2. **Naming** — **Resolved**: Get Shit Right (GSR). Commands: `/gsr:*`
 3. **Command surface** — 8 commands proposed. Need to validate each one is necessary and sufficient.
 4. **Done signals** — When is a phase done? When is the whole project done? How does STATE.md reflect this?
 5. **Start B details** — The "map and assess" flow needs more specifics on how quality is evaluated.
