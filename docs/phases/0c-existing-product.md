@@ -27,7 +27,7 @@ Map the existing product so GSR can work with it. This step runs once per produc
 
 ### What happens
 1. **Map the codebase** — architecture, conventions, stack, folder structure (parallelizable — multiple agents)
-2. **Verify access & credentials** — based on the mapped stack, ask user about access to all external services (Supabase, Vercel, APIs, etc.). For existing products some may already be configured — check `.env`, config files. Flag missing access as blockers.
+2. **Check access & credentials** — scan existing config (`.env`, config files, deployment settings) to understand what's already configured. The product is running, so most access is in place. Only ask the user if the **new feature requires a service that's not yet configured** (e.g. adding Stripe to a product that didn't have payments before).
 3. **Create `CLAUDE.md`** if it doesn't exist — conventions, code references, learned rules. If it exists, read and validate.
 4. **Create `docs/techstack.md`** if it doesn't exist — stack, versions, project-wide skills
 5. **Create `docs/` structure** if it doesn't exist — the GSR docs folder for feature files, STATE.md, BACKLOG.md
