@@ -145,6 +145,7 @@ Turns scope.md into a pure product PRD + per-feature specs — the product knowl
 - User iterates on individual feature files (easier to review than a monolith)
 - **Research areas marked "blocking PRD"** are resolved here (parallel agents for independent research questions)
 - PRD is **purely product** — no tech stack, no schemas, no routes. Those live in CLAUDE.md (tech context) and code (implementation).
+- **Skills matching per feature:** When a feature scope is confirmed, the system searches skills.sh marketplace for ideal skills, compares with installed skills, recommends missing ones, and adds skill references to the feature file. This happens during PRD generation, not during build.
 
 ### Progressive disclosure structure
 
@@ -169,6 +170,7 @@ Turns scope.md into a pure product PRD + per-feature specs — the product knowl
 - Business rules and edge cases
 - Data needs at conceptual level ("needs user's weekly goal and this week's tracked km")
 - UX description (layout intent, key interactions)
+- **Skills** (which skills to load when implementing this feature — matched from marketplace)
 - Decision log (choices + rationale)
 - Related features (links to other feature files)
 
@@ -215,18 +217,19 @@ Two modes, selected by which command you use:
 **When:** UI components, screens, interactions, design-sensitive features — anything the user will see and judge.
 
 **How:**
-1. User gives a small, scoped task: "Build the WeatherCard (PRD section 8.2)"
-2. Claude reads CLAUDE.md → identifies skills from mapping table → reads relevant SKILL.md files
-3. Plan mode if >2 files, direct implementation otherwise
-4. User reviews every diff, tests in browser
-5. User corrects → Claude asks "Add this to CLAUDE.md Learned Rules?"
-6. Atomic commit after user approves
-7. STATE.md auto-updates (task count incremented)
+1. User gives a small, scoped task: "Build the dashboard (see `docs/features/dashboard.md`)"
+2. System reads the feature file → loads skills listed in the feature's Skills section → reads relevant SKILL.md files
+3. Claude reads CLAUDE.md (conventions, references, learned rules)
+4. Plan mode if >2 files, direct implementation otherwise
+5. User reviews every diff, tests in browser
+6. User corrects → Claude asks "Add this to CLAUDE.md Learned Rules?"
+7. Atomic commit after user approves
+8. STATE.md auto-updates (task count incremented)
 
 **Rules:**
 - Claude always says "done, test it" or "still need X" — never "should work"
 - Before saying done: code compiles, no TS errors, build passes
-- Skills are mandatory per CLAUDE.md mapping table
+- Skills are enforced by the workflow (loaded from feature file), not by Claude remembering a rule
 
 ### Mode B: Systematic Build (agent-driven with verification)
 

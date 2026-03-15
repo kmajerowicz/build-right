@@ -179,18 +179,36 @@ Chain: `CLAUDE.md` → `PRD.md` → `features/*.md`
 
 **Source:** Conversation with collaborator (megaczlowiekkappa9) + Kacper's insight about handoff workflow and Vitis design system reference pattern.
 
+### Decision 12: Skills live in feature files, enforced by workflow — not CLAUDE.md
+
+**What:** Skills mapping moves from CLAUDE.md (a rule Claude should follow) to feature files (loaded by the workflow automatically). Each feature file has a Skills section listing which skills to load during implementation.
+
+During PRD generation, when a feature scope is confirmed:
+1. System searches skills.sh marketplace for ideal skills (not just what's installed)
+2. Compares with installed skills, recommends missing ones
+3. Adds confirmed skills to the feature file
+
+During build, the workflow loads skills from the feature file — Claude can't skip them.
+
+**Why:** Three problems solved:
+1. **Enforcement** — In Vitis, Claude ignored skills without the word "MANDATORY." Moving enforcement from a document rule to the workflow itself makes it impossible to skip.
+2. **Per-feature granularity** — Different features need different skills. Dashboard needs design skills, tracking might need offline/PWA skills. Feature-level assignment is more precise than a global mapping table.
+3. **Marketplace-first** — System checks skills.sh for what's ideal, not just what's installed. Like buying the right shoes, not fitting from your closet.
+
+**Impact:** CLAUDE.md becomes leaner (~30-40 lines) — just conventions, references, and learned rules. Tech stack moves to `docs/techstack.md`. Skills mapping removed entirely.
+
 ---
 
 ## Phase 3: What's Still Open
 
-| # | Topic | Why it matters |
-|---|-------|---------------|
-| 1 | CLAUDE.md + skills setup | How are skills installed and mapped during init? Auto-detected or user-configured? |
-| 2 | Naming | "Build Right" is a working title |
-| 3 | Command surface | 8 commands proposed — need validation |
-| 4 | Done signals | When is a phase done? When is the project done? |
-| 5 | Start B details | How exactly is quality evaluated when materials exist? |
-| 6 | Sweep parallelization | How do parallel agents share CLAUDE.md context? |
+| # | Topic | Status |
+|---|-------|--------|
+| 1 | CLAUDE.md + skills setup | **Resolved** — Decision 12. Skills in feature files, enforced by workflow. CLAUDE.md = conventions + references + learned rules. Tech stack in techstack.md. |
+| 2 | Naming | Open |
+| 3 | Command surface | Open — define last, after process is clear |
+| 4 | Done signals | Open |
+| 5 | Start B details | Open |
+| 6 | Sweep parallelization | Open |
 
 ---
 

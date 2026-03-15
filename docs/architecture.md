@@ -78,9 +78,9 @@ docs/features/*.md (one per feature, ~300 lines max each)
 ```
 project-root/
 ├── CLAUDE.md                   # Technical instruction manual
-│                               # Stack, skills mapping, conventions, learned rules
-│                               # References to where things live in code
-│                               # Points to → PRD.md for product context
+│                               # Conventions, learned rules, code references
+│                               # Points to → docs/techstack.md, docs/PRD.md
+│                               # NO skills mapping (skills live in feature files)
 │
 ├── docs/
 │   ├── PRD.md                  # Pure product knowledge (~200-300 lines)
@@ -93,12 +93,14 @@ project-root/
 │   ├── scope.md                # Original vision document (from Phase 0)
 │   │                           # Historical reference after PRD is generated
 │   │
+│   ├── techstack.md            # Stack, versions, tech decisions
+│   │
 │   ├── features/               # One file per feature (~300 lines max)
-│   │   ├── dashboard.md        # Product spec: flows, states, business rules, decisions
-│   │   ├── discover.md         # Product spec: map, search, filters
-│   │   ├── tracking.md         # Product spec: GPS, offline, states
-│   │   ├── history.md          # Product spec: list, stats, filters
-│   │   ├── onboarding.md       # Product spec: steps, optional fields, flow
+│   │   ├── dashboard.md        # Spec + skills + decisions
+│   │   ├── discover.md         # Spec + skills + decisions
+│   │   ├── tracking.md         # Spec + skills + decisions
+│   │   ├── history.md          # Spec + skills + decisions
+│   │   ├── onboarding.md       # Spec + skills + decisions
 │   │   └── ...                 # One file per feature/screen
 │   │
 │   ├── STATE.md                # Progress tracker (~30 lines, never >50)
@@ -120,19 +122,18 @@ The first thing Claude reads every session. Small, authoritative, grows organica
 
 **Contains:**
 - Project name + one-line description
-- Tech stack (with versions)
-- Skills mapping table (MANDATORY — which skill to read per task type)
-- Code conventions (naming, folder structure, patterns)
-- **Code references** — where things live:
+- **References** — where things live:
+  - "Tech stack: `docs/techstack.md`"
+  - "Product context: `docs/PRD.md`"
   - "Schema: `supabase/migrations/`"
   - "Routes: `src/router.tsx`"
   - "Design tokens: `src/index.css` @theme block"
-  - "Product context: `docs/PRD.md`"
+- Code conventions (naming, folder structure, patterns)
 - **Learned Rules** section (grows with every `/br:learn` correction, each dated)
 
-**Does NOT contain:** Product knowledge (that's PRD.md), feature specs (that's features/), implementation details (that's code).
+**Does NOT contain:** Tech stack details (that's techstack.md), skills mapping (skills live in feature files), product knowledge (that's PRD.md), feature specs (that's features/), implementation details (that's code).
 
-**Size:** Starts at ~50 lines. Grows to ~100-150 over the life of the project.
+**Size:** Starts at ~30-40 lines. Grows to ~80-120 over the life of the project (mostly Learned Rules).
 
 ### PRD.md (pure product knowledge)
 
@@ -152,7 +153,7 @@ The "map" of the product — what we're building, for whom, why, and how it work
 11. Research areas status
 
 **Does NOT contain:**
-- Tech stack, versions, dependencies (that's CLAUDE.md)
+- Tech stack, versions, dependencies (that's techstack.md)
 - Table schemas, column types, migrations (that's code)
 - Routes, endpoints, API contracts (that's code)
 - Design tokens, CSS variables (that's code)
@@ -171,6 +172,7 @@ One file per feature or screen. Everything a dev (human or AI) needs to understa
 - Business rules and edge cases ("goals are optional — when not set, streak is inactive")
 - Data needs at conceptual level ("needs user's weekly goal and this week's tracked km")
 - UX description (layout intent, key interactions — not component names)
+- **Skills** (which skills to load when implementing this feature — matched from skills.sh marketplace during PRD generation)
 - Decision log (choices made during scope/PRD, with rationale)
 - Related features (links to other feature files that interact)
 
@@ -178,6 +180,14 @@ One file per feature or screen. Everything a dev (human or AI) needs to understa
 - Component names, CSS classes, implementation patterns (that's code)
 - API call details, query structures (that's code)
 - Schema field names, types (that's code)
+
+**Skills matching flow** (during PRD generation):
+1. Feature scope confirmed
+2. System searches skills.sh marketplace for ideal skills for this feature
+3. Compares with already installed skills (`.agents/skills/`)
+4. Recommends missing skills for installation
+5. Adds confirmed skills to the feature file's Skills section
+6. During build, the workflow loads these skills automatically — Claude can't skip them
 
 **Size:** ~100-300 lines per file. If a feature file exceeds 300 lines, consider splitting into sub-features.
 
