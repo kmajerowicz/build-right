@@ -6,6 +6,30 @@
 
 ---
 
+## Access & Credentials Check
+
+Before creating anything, the system asks the user about access to external services required by the stack. Based on `docs/techstack.md` (or PRD if techstack.md doesn't exist yet), identify what needs access:
+
+**Examples:**
+- Supabase → project URL, anon key, service role key
+- Vercel → account access, project linked?
+- Mapbox → API token
+- Stripe → API keys (test + prod)
+- GitHub → repo created? Push access?
+- Domain → DNS configured?
+- Any third-party API → keys, accounts, rate limits
+
+**How it works:**
+1. Read the stack and identify all external services
+2. Ask the user: "Before we start building, I need to verify access. Do you have credentials/access for: [list]?"
+3. For each service, explain what's needed and why (following Principle 10 — explain every choice)
+4. User confirms or flags blockers
+5. Blockers go to BACKLOG.md or block the relevant build phase
+
+This prevents the situation where you're mid-implementation and discover the user doesn't have a Supabase project or Vercel account.
+
+---
+
 ## What It Creates
 
 - `CLAUDE.md` — living instruction manual (conventions, code references, empty Learned Rules section)

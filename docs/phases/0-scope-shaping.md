@@ -9,9 +9,18 @@
 Based on the proven 7-step process from Psie Wędrówki scope-shaping session, plus 6 improvements identified in retrospective.
 
 ### Step 1: Vision intake
-User dumps raw idea (conversational, unstructured is fine). Claude listens, asks 3-5 clarifying questions covering: target user, competitor landscape, tech constraints, MVP vs long-term.
+User dumps raw idea (conversational, unstructured is fine). Claude listens, then extracts or asks about the **project foundations** — these must be clear before anything else:
 
-The ideal opening message includes the **why** (pain points), the **what** (rough features), the **how** (tech preferences), and the **who** (target user). ~70% of core vision typically comes from the first message.
+**Must have after Step 1:**
+- **Goal** — what is this project supposed to achieve? What problem does it solve?
+- **Vision** — what does the end result look like? How does the user experience it?
+- **Target user** — who is this for? What's their context, technical level, needs?
+- **Why** — why are we building this? What changes if this exists? What's the motivation?
+- **What it does** — what does the app/project/feature actually do? (high level, not detailed)
+
+These five points are the foundation — everything else (features, architecture, tech stack) flows from them. If the user's first message covers them, great. If not, Claude asks until they're clear.
+
+The ideal opening message includes the **why** (pain points), the **what** (rough features), the **how** (tech preferences), and the **who** (target user). ~70% of core vision typically comes from the first message. But even a vague idea is fine — Claude helps shape it through questions.
 
 ### Step 2: Competitive mapping (parallelizable — agent)
 Claude researches the primary competitor's UX. Maps features, identifies gaps, finds differentiation opportunities. Proactive, not waiting for user to ask "how does X handle this?"
@@ -105,7 +114,7 @@ During scope shaping, research areas are identified and triaged into three tiers
 ## Output
 
 `docs/scope.md` in the target project, containing:
-- Vision statement
+- **Project foundations** (goal, vision, target user, why we're building this, what it does)
 - Navigation architecture (screens, flows)
 - Core concepts (key differentiators)
 - Data model (entity-level, field-level decisions where they matter)
