@@ -52,6 +52,7 @@ User has materials (client brief, scope doc, partial spec, existing codebase). T
 7. **Adaptive, not prescriptive.** Mapping in Start B adapts to the project. Questions adapt to user's domain expertise. No hardcoded checklists for things that vary per project.
 8. **Docs for product, code for implementation.** Documents describe what and why. Code describes how. Docs reference code, never duplicate it.
 9. **Skills are boosters, not blockers.** Matched from marketplace per feature, loaded by workflow automatically. System works without them.
+10. **Explain every choice.** The user may or may not be technical. May or may not be product-experienced. When presenting a decision, always explain: what are the options, what's the impact from a product perspective (UX, scope, timeline), and what's the impact from a technical perspective (complexity, maintainability, risk). Never assume the user knows — empower them to decide with full context.
 
 ---
 

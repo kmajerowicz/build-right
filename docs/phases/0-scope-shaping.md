@@ -45,6 +45,7 @@ Both parties review. Scope is "done" when neither finds meaningful issues in two
 
 - Batch decisions, then update document (not mixed in same message)
 - **Active assumption flagging** — throughout steps 1-6, Claude flags every unverified statement inline ("⚠️ assumes PTTK has digital data"). In step 6 (consistency audit), Claude does an explicit research sweep: collects all flagged assumptions and triages them (blocking scope / blocking PRD / blocking build). User can also flag research areas at any point.
+- **Explain every choice** — the user may or may not be technical, may or may not have product experience. When presenting a decision (e.g. "PWA vs native?", "open registration vs invite system?", "one walk type vs categories?"), always explain: what are the options, what's the product impact (UX, scope, timeline), and what's the technical impact (complexity, maintainability, risk). Never assume the user knows — empower them to decide with full context.
 - Claude drives ~70% through questions, user drives ~30% through corrections
 - User's strongest contributions: corrections and domain expertise
 - Claude's strongest contributions: structure, edge cases, "what happens when X is empty/missing"
