@@ -141,12 +141,13 @@ Turns scope.md into a full technical PRD — the single source of truth for the 
 
 ### How it works
 - Input: scope.md + any design references (Figma, screenshots, design system .md)
-- Claude generates full PRD (~1000-1700 lines)
-- User iterates — edge cases, refinements, challenges architecture
-- Each iteration overwrites PRD.md
+- Claude generates condensed PRD.md (~200-300 lines) + individual feature files (`docs/features/*.md`)
+- User iterates on individual feature files (easier to review than a monolith)
 - **Research areas marked "blocking PRD"** are resolved here (parallel agents for independent research questions)
 
-### PRD structure (12 sections)
+### Progressive disclosure structure
+
+**PRD.md** (~200-300 lines, condensed) contains:
 1. Project summary
 2. Business goals and success metrics
 3. User personas
@@ -154,11 +155,23 @@ Turns scope.md into a full technical PRD — the single source of truth for the 
 5. System architecture (with ASCII diagram)
 6. Project structure (file tree)
 7. Data model (with relationships, schemas)
-8. Functional requirements per screen (NUMBERED for reference — "implement section 8.3")
+8. Feature index (table with links to `features/*.md`)
 9. Non-functional requirements
 10. Design system reference
 11. Build Phases (ordered, each marked `creative` or `systematic`, with success criteria)
-12. Research areas status (resolved, or flagged for build phase with specific phase assignment)
+12. Research areas status
+
+**docs/features/*.md** (one per feature, ~300 lines max each) contains:
+- Feature name, purpose, user flow
+- States: empty, partial, full, error, loading, offline
+- Data requirements, UI description, interactions
+- Edge cases and business rules
+- Decision log (choices + rationale)
+- Related features (links to other feature files)
+
+Chain: `CLAUDE.md` → `PRD.md` → relevant `features/*.md` per task. Never 1700 lines at once.
+
+Full details: [architecture.md](architecture.md)
 
 ### Build Phases within PRD
 Each phase includes:
@@ -168,8 +181,8 @@ Each phase includes:
 - Research dependencies (if any blocking-build research must happen first)
 - Suggested task breakdown (refined during build)
 
-### PRD = Single Source of Truth
-No separate REQUIREMENTS.md, ROADMAP.md, or PROJECT.md. The PRD contains all of it. One document to reference, not five.
+### PRD + Features = Single Source of Truth
+No separate REQUIREMENTS.md, ROADMAP.md, or PROJECT.md. PRD.md + feature files contain all of it.
 
 ---
 
@@ -268,15 +281,20 @@ Appended to STATE.md as phase completion record. No separate VERIFICATION.md fil
 ### Per-project file structure
 ```
 project-root/
-├── CLAUDE.md          # Living instruction manual (grows with /br:learn)
+├── CLAUDE.md                   # Living instruction manual (grows with /br:learn)
 ├── docs/
-│   ├── scope.md       # Vision, features, data model, research areas, v2 backlog
-│   ├── PRD.md         # Single source of truth (architecture, specs, build phases)
-│   ├── STATE.md       # Progress tracker (~30 lines)
-│   └── BACKLOG.md     # Deferred work
+│   ├── scope.md                # Original vision (from Phase 0, historical reference)
+│   ├── PRD.md                  # Condensed product knowledge (~200-300 lines)
+│   ├── features/               # One file per feature (~300 lines max)
+│   │   ├── dashboard.md
+│   │   ├── discover.md
+│   │   ├── tracking.md
+│   │   └── ...
+│   ├── STATE.md                # Progress tracker (~30 lines)
+│   └── BACKLOG.md              # Deferred work
 ```
 
-4 documents. Not 15.
+Progressive disclosure, not a monolith. Full details: [architecture.md](architecture.md)
 
 ### STATE.md (lightweight, ~30 lines)
 - Current focus (phase + status)

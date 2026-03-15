@@ -52,7 +52,7 @@ System: 12 agents, 50+ CLI commands, 28 templates, 100+ files.
 4. **Deferred work tracking** — explicit, not in human's head
 5. **Systematic execution** — worked well for Vitis hardening sprint (17 requirements, 4 phases)
 
-Full analysis: [your-approach-vs-gsd-report.md](your-approach-vs-gsd-report.md)
+Full analysis: [analysis.md](analysis.md)
 
 ---
 
@@ -149,6 +149,20 @@ docs/BACKLOG.md — deferred work
 
 **Why:** GSD's biggest flaw — executor in phase 5 repeats the CSS grid mistake you corrected in phase 1. Corrections must persist.
 
+### Decision 10: Progressive disclosure — PRD splits into condensed PRD + feature files
+
+**What:** Instead of a monolithic PRD (~1700 lines), the system uses:
+- `PRD.md` (~200-300 lines) — condensed product knowledge, architecture, data model, phase plan
+- `docs/features/*.md` (one per feature, ~300 lines max) — full spec per screen/feature
+
+Chain: `CLAUDE.md` → `PRD.md` → `features/*.md`
+
+**Why:** Claude never reads the whole PRD — it jumps to the relevant section. Separate files make this explicit. Also creates a self-documenting project ("confluence in the repo") where any team member (human or AI) can understand a feature by reading one file.
+
+**Impact:** Changes PRD generation (Phase 1) — Claude generates condensed PRD + individual feature files. Changes build (Phase 3) — Claude reads CLAUDE.md + one feature file per task, not 1700 lines.
+
+**Source:** Conversation with collaborator (megaczlowiekkappa9). Full rationale in [architecture.md](architecture.md).
+
 ---
 
 ## Phase 3: What's Still Open
@@ -169,5 +183,6 @@ docs/BACKLOG.md — deferred work
 | Document | What it is | Status |
 |----------|-----------|--------|
 | [scope.md](scope.md) | Full system scope — phases, flows, artifacts, principles | In progress (open topics remain) |
-| [your-approach-vs-gsd-report.md](your-approach-vs-gsd-report.md) | Deep comparison of Kacper's approach vs GSD | Complete |
+| [analysis.md](analysis.md) | Deep comparison of Kacper's approach vs GSD | Complete |
+| [architecture.md](architecture.md) | How BR projects are structured (PRD, features/, CLAUDE.md) | In progress |
 | [plan.md](plan.md) | This file — how we got here, decisions made, what's next | Living document |
