@@ -1,6 +1,6 @@
 # Phase 3: Build
 
-**Two modes, selected by which command you use.**
+**Two modes, selected by prompt within `/gsr:build`. User picks a feature to build, then chooses the mode. Features are grouped into build phases defined in the PRD.**
 
 ---
 

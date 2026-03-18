@@ -201,14 +201,15 @@ Skills are **boosters, not blockers** — the system works without them. Niche t
 
 ### docs/STATE.md (progress tracker)
 
-Lightweight digest. Auto-updated after each task.
+Lightweight digest. Auto-updated after each task. Two granularity levels: phases and features.
 
 **Contains:**
-- Current focus (phase + status)
-- Phase progress table (# | Phase | Type | Status | Tasks done/total)
+- Current focus (phase + feature + status)
+- Phase progress table (# | Phase | Status)
+- Feature progress table per active phase (Feature | Status | Mode | Tasks done/total)
 - Recent decisions (date + what + which file updated)
 - Deferred items (captured during build)
-- Phase verification records (appended when phases complete)
+- Verification records (appended per feature and per phase)
 - Last session / next action
 
 **Size:** ~30 lines. Never exceeds 50.
