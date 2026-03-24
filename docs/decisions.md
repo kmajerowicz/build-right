@@ -277,6 +277,85 @@ Flow: Codebase Onboarding → Feature Scope → Feature File → Build → Verif
 
 **Impact:** Resolves backlog item #6 (sweep parallelization). Systematic build mode dispatches subagents for independent tasks. Verification dispatches subagents for independent checks (grep, tests, build, TS errors).
 
+### Decision 24: Start B — how quality is evaluated and what triggers improve vs proceed (details for Decision 17)
+
+**What:** Start B assesses materials on two dimensions — not document quality, but information completeness:
+
+**1. Project foundations** (same 5 from Start A Step 1):
+Goal, Vision, Target user, Why, What it does.
+
+**2. Feature clarity** — can we list the product's features/screens and roughly understand what each does? Not detailed specs (that's PRD generation), just enough to know what exists.
+
+**Assessment mechanism:** After mapping materials (Step 2), Claude produces a structured assessment table:
+- Each foundation: `✓ clear` (with evidence from materials) or `⚠️ unclear` (with what's missing)
+- Each feature: source, and whether it's ready for PRD generation
+- Verdict: PROCEED or IMPROVE (with specific gaps listed)
+
+**Proceed when:**
+- All 5 foundations are clear
+- Feature list is known with enough context for PRD generation
+
+**Improve when:**
+- Any foundation is missing or ambiguous
+- Can't list the features/screens
+- Materials contradict each other (contradictions = gap)
+
+**Deferred foundations — queue, don't block:**
+- If user doesn't answer a foundation question, Claude marks it `⚠️ unclear`, suggests its best answer, and continues working
+- As Claude gathers more context (feature deep-dives, mapping), it returns to unclear items with informed suggestions: "Based on what you described about X, I think the target user is Y — correct?"
+- **Hard gate before PRD generation:** all 5 foundations must be `✓ clear`. If anything remains `⚠️ unclear`, Claude returns to it with a suggestion grounded in the context gathered so far
+
+**Improve path is targeted:**
+- Enters Start A steps 4-7 but only for identified gaps — doesn't restart scope shaping from scratch
+- Foundations are resolved conversationally (they're decisions)
+- Features are resolved document-based (Claude drafts from materials, user corrects)
+
+**Assessment is adaptive:**
+- Doesn't check for things the project doesn't need (no i18n check for single-market tool, no PWA check for desktop app)
+- Checks information, not format — works for client briefs, Figma files, meeting notes, partial specs, or existing codebases
+
+**Why:** Decision 17 (`/gsr:learn` as Start B entry) defined the mechanism but not the assessment criteria. This adds: (1) what "quality" means (foundations + feature clarity), (2) the proceed/improve threshold, (3) the deferred foundations pattern (queue gaps, don't block, hard gate before PRD).
+
+**Impact:** Changes Phase 0 (Start B steps 2-4 get structured assessment format + deferred foundations pattern).
+
+### Decision 25: Sweep parallelization — file-level partitioning, zero conflicts by design (details for Decision 18)
+
+**What:** Parallel agents in systematic mode (Mode B) are coordinated through strict file-level partitioning — no two agents ever touch the same file. This is a hard constraint enforced at task assignment time, not a convention.
+
+**Two-phase execution:**
+
+**Phase 1 — Parallel (agents):** Each agent gets a sweep brief (CLAUDE.md content, relevant feature file, explicit constraints) and works on assigned files only. No agent modifies a file assigned to another agent. Zero conflicts — not by merge resolution, by prevention.
+
+**Phase 2 — Sequential (single Claude):** After all agents complete, one pass handles:
+- Shared files (indexes, configs, wiring imports)
+- Consistency check (same conventions across all agent output)
+- Atomic commits for the wiring
+
+**Sweep brief:** Snapshot of shared context given to every agent:
+- CLAUDE.md conventions + learned rules
+- Relevant feature file(s)
+- Explicit constraints for the sweep (e.g., "translate to Polish, formal 'Pan/Pani', keys in camelCase")
+- Task assignment with file boundaries
+
+**Parallelization heuristic:** If you can draw a task → file mapping where no file appears twice → parallelize. If not → sequential.
+
+**Parallelize:**
+- i18n (per screen — each screen's files are independent)
+- Testing (per feature — each test file is independent)
+- Accessibility audit (per component)
+- Security headers (per route)
+
+**Don't parallelize:**
+- Refactoring (changes cascade across files)
+- Shared state changes (same reducer, same store)
+- Cross-file dependencies (agent A creates util, agent B needs it)
+
+**No worktrees, no merge:** Agents share the same filesystem. File partitioning eliminates conflicts entirely — no git worktrees needed, no merge step, no post-hoc conflict resolution.
+
+**Why:** Decision 18 resolved the "what mechanism" (subagents, not agentic teams). This resolves the "how exactly" — how subagents avoid conflicts, how they share context, and when NOT to parallelize.
+
+**Impact:** Changes Phase 3 (systematic build parallelization section updated with two-phase execution model + partitioning heuristic).
+
 ---
 
 ## Phase 4: What's Still Open
