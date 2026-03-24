@@ -348,6 +348,44 @@ Goal, Vision, Target user, Why, What it does.
 
 **Impact:** Changes Phase 0 (Start B steps 2-4 get structured assessment format + deferred foundations pattern).
 
+### Decision 19: Sweep parallelization — file-level partitioning, zero conflicts by design
+
+**What:** Parallel agents in systematic mode (Mode B) are coordinated through strict file-level partitioning — no two agents ever touch the same file. This is a hard constraint enforced at task assignment time, not a convention.
+
+**Two-phase execution:**
+
+**Phase 1 — Parallel (agents):** Each agent gets a sweep brief (CLAUDE.md content, relevant feature file, explicit constraints) and works on assigned files only. No agent modifies a file assigned to another agent. Zero conflicts — not by merge resolution, by prevention.
+
+**Phase 2 — Sequential (single Claude):** After all agents complete, one pass handles:
+- Shared files (indexes, configs, wiring imports)
+- Consistency check (same conventions across all agent output)
+- Atomic commits for the wiring
+
+**Sweep brief:** Snapshot of shared context given to every agent:
+- CLAUDE.md conventions + learned rules
+- Relevant feature file(s)
+- Explicit constraints for the sweep (e.g., "translate to Polish, formal 'Pan/Pani', keys in camelCase")
+- Task assignment with file boundaries
+
+**Parallelization heuristic:** If you can draw a task → file mapping where no file appears twice → parallelize. If not → sequential.
+
+**Parallelize:**
+- i18n (per screen — each screen's files are independent)
+- Testing (per feature — each test file is independent)
+- Accessibility audit (per component)
+- Security headers (per route)
+
+**Don't parallelize:**
+- Refactoring (changes cascade across files)
+- Shared state changes (same reducer, same store)
+- Cross-file dependencies (agent A creates util, agent B needs it)
+
+**No worktrees, no merge:** Agents share the same filesystem. File partitioning eliminates conflicts entirely — no git worktrees needed, no merge step, no post-hoc conflict resolution.
+
+**Why:** The original question was "how do parallel agents share CLAUDE.md context?" The answer: they don't share state at runtime — they each get a read-only snapshot (sweep brief) at launch. The real problem is conflicts, and the solution is prevention not resolution. File-level partitioning is simpler and more reliable than worktree isolation + merge, because there are zero edge cases to handle.
+
+**Impact:** Changes Phase 3 (systematic build parallelization section updated with two-phase execution model + partitioning heuristic).
+
 ---
 
 ## Phase 3: What's Still Open
@@ -359,7 +397,7 @@ Goal, Vision, Target user, Why, What it does.
 | 3 | Command surface | Open — define last, after process is clear |
 | 4 | Done signals | **Resolved** — Decision 17. Phase done = verification PASS (no Blockers) + demo verified + HUMAN items resolved. Project done = all phases PASS + backlog triaged + nothing "must before launch." |
 | 5 | Start B details | **Resolved** — Decision 18. Assess foundations (5 universal) + feature clarity. Deferred foundations queued, not blocked — hard gate before PRD. |
-| 6 | Sweep parallelization | Open |
+| 6 | Sweep parallelization | **Resolved** — Decision 19. File-level partitioning (no two agents touch same file). Two-phase: parallel agents on independent files, then sequential wiring pass. |
 
 ---
 
