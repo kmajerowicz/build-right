@@ -22,8 +22,12 @@ These five points are the foundation — everything else (features, architecture
 
 The ideal opening message includes the **why** (pain points), the **what** (rough features), the **how** (tech preferences), and the **who** (target user). ~70% of core vision typically comes from the first message. But even a vague idea is fine — Claude helps shape it through questions.
 
-### Step 2: Competitive mapping (parallelizable — agent)
+### Step 2: Competitive mapping + "don't hand-roll" sweep (parallelizable — agents)
 Claude researches the primary competitor's UX. Maps features, identifies gaps, finds differentiation opportunities. Proactive, not waiting for user to ask "how does X handle this?"
+
+**In parallel:** For each core capability in the user's idea (auth, payments, real-time, email, maps, etc.), Claude checks whether a proven library or service already solves it. The goal: prevent the most expensive mistake — building something that already exists as a mature, tested solution.
+
+Results feed into feature files during PRD generation as "Don't Hand-Roll" sections.
 
 ### Step 3: First scope draft
 Claude produces a broad scope document. User reviews for major misalignments.
@@ -41,6 +45,8 @@ Claude produces a broad scope document. User reviews for major misalignments.
 Screen by screen, feature by feature. For each: what does the user see? What are the states (empty, partial, full)? What data does it need? What happens day 0?
 
 **User journey mapping** asked early: "Who is the user on day 1, day 7, day 30?"
+
+**Known pitfalls:** For features involving complex or risky technical territory (real-time sync, offline support, payment flows, geo/maps), Claude proactively surfaces common pitfalls — what goes wrong, why, and how to avoid it. These feed into feature files as "Known Pitfalls" sections during PRD generation.
 
 ### Step 6: Consistency audit
 Full document review. Check: data model matches features, optional fields cascade correctly, empty states defined, research areas flagged, no promises without coverage.

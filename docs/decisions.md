@@ -279,11 +279,178 @@ Flow: Codebase Onboarding → Feature Scope → Feature File → Build → Verif
 
 ---
 
+## Phase 3b: Process Detail Decisions
+
+_Decisions adding process depth to the phase specs — verification structure, done signals, assessment mechanisms, parallelization details._
+
+### Decision 20: Structured verification — Truths / Artifacts / Key Links / Anti-Patterns
+
+**What:** Verification (Phase 4) uses a structured, mechanically checkable format instead of a flat checklist. Four categories:
+
+- **Truths** — Observable behaviors ("user can sign up"). Checked by running commands or reading output.
+- **Artifacts** — Files that must exist with real implementation, not stubs. Checked by file existence, line count, exports.
+- **Key Links** — Connections between components (imports, API calls). Checked by grep.
+- **Anti-Patterns** — Stubs, TODOs, hardcoded values, mock data in production code. Checked by grep sweep.
+
+Plus a **verification ladder** — try the strongest automated check first: Static → Command → Behavioral → Human (only when Claude can't verify itself).
+
+Must-haves (Truths/Artifacts/Key Links) are defined at spec time in feature files and PRD build phases, then checked at verification time in Phase 4. Same structure, defined once, verified once.
+
+**Why:** GSR's original Phase 4 was "grep + manual checks" without structure. It didn't catch stubs (file exists but is placeholder), broken wiring (components exist but aren't connected), or anti-patterns (console.log replacing real functionality). The verification ladder also reduces unnecessary human checks — Claude tries automated verification first.
+
+**Source:** Adapted from GSD 2's must-haves verification model (Truths/Artifacts/Key Links format + verification ladder + anti-pattern sweep). Adapted to GSR by: keeping must-haves at product level in feature files (no file paths or line counts in specs), checking implementation details only during verification.
+
+**Impact:** Changes Phase 1 (feature files get Must-haves section), Phase 4 (structured report format + verification ladder + anti-pattern sweep), architecture.md (feature file description updated).
+
+### Decision 21: "Don't Hand-Roll" sweep + Known Pitfalls
+
+**What:** During scope shaping (Phase 0, Step 2) and PRD generation (Phase 1), the system proactively identifies:
+
+1. **Don't Hand-Roll** — For each technical need in a feature (auth, payments, email, etc.), check if a proven library/service already solves it. Results go into the feature file as a table: Need | Don't Build | Use Instead | Why.
+
+2. **Known Pitfalls** — For features involving complex/risky technical territory, surface common mistakes: what goes wrong, why, how to avoid, warning signs.
+
+Both are optional sections in feature files — only included when relevant.
+
+**Why:** Prevents the most expensive mistakes: (1) building something that exists as a mature solution, and (2) falling into known traps. Particularly valuable for the target user "PM / non-developer" who doesn't know what's available in the ecosystem. Complements skills matching — skills are tools for Claude, don't-hand-roll is tools for the code.
+
+**Source:** Adapted from GSD 2's research template ("Don't Hand-Roll" table + "Common Pitfalls" sections). Adapted to GSR by: moving from a separate research artifact into feature files (no new files), making both sections optional, running the sweep in parallel with competitive mapping and skills matching.
+
+**Impact:** Changes Phase 0 (Step 2 expanded, Step 5 pitfalls added), Phase 1 (feature files get Don't Hand-Roll + Known Pitfalls sections).
+
+### Decision 22: Demo sentence per build phase
+
+**What:** Every build phase in the PRD must have a **demo sentence** — one line stating what the user can see or do after this phase completes.
+
+```
+**Demo:** User can start a walk, see it tracked in real-time, and view stats on the dashboard.
+```
+
+If you can't write a demo sentence, the phase is too abstract and should be restructured.
+
+The demo sentence becomes the first human verification item in Phase 4 ("open app, verify: [demo sentence]").
+
+**Why:** Build phases had "success criteria" — technically correct but not user-facing. A PM/user understands "after this phase I can log in and see my dashboard" better than "auth service exports generateToken, verifyToken." Forces phases to deliver user-visible progress. Also serves as a sanity check: phases that can't be demoed are probably scoped wrong.
+
+**Source:** Adapted from GSD 2's "demo sentence" per slice (`> After this: what the user can demo when this slice is done`). Adapted to GSR by: adding to PRD build phases (not a separate artifact), connecting to Phase 4 as the first human verification item.
+
+**Impact:** Changes Phase 1 (build phases require Demo field), Phase 4 (demo sentence is first human check).
+
+### Decision 23: Done signals — phase done and project done (completes Decision 16)
+
+**What:** Two levels of "done," both with clear mechanical checks. Completes the project-level done signal left open by Decision 16 (per-feature done).
+
+**Build phase done** when all 3 conditions are met:
+1. **Verification report has no Blockers** — anti-patterns with severity Blocker must be resolved before the phase can be marked PASS. Minor items move to BACKLOG.md.
+2. **Demo sentence verified by human** — the first item in the verification report, always a manual check ("open app, verify: [demo sentence]").
+3. **All HUMAN-tier items resolved** — verification ladder tier 4 items (things Claude can't verify) have been checked by the human and marked pass/fail.
+
+Phase status flow: `NOT STARTED` → `BUILDING` → `VERIFYING` → `PASS` or `BLOCKED`
+- `BLOCKED` means verification found Blockers — resolve them (they become tasks in the current phase), then re-verify.
+
+**Project done** when all 3 conditions are met:
+1. **All build phases PASS** — every phase has a verification report with no Blockers.
+2. **Backlog triaged** — after the last phase, human reviews BACKLOG.md and categorizes every item: "must before launch" / "v2" / "won't do."
+3. **Nothing in "must before launch"** — if any items are "must before launch," they become a new build phase. Project is done only when that phase also passes.
+
+Project status flow: `IN PROGRESS` → `BACKLOG TRIAGE` → `DONE`
+- `BACKLOG TRIAGE` triggers automatically after the last planned phase passes.
+
+**STATE.md changes:**
+- Add top-level `Project Status` field (IN PROGRESS / BACKLOG TRIAGE / DONE)
+- Phase progress table adds `Verification` column showing PASS date or BLOCKED
+- Phase statuses: NOT STARTED / BUILDING / VERIFYING / PASS / BLOCKED
+
+**Why:** Decision 16 resolved per-feature done signals but left "when is the whole project done?" open. The answer: (1) explicit Blocker vs Minor severity rule for phase completion, (2) backlog triage after all phases (deferred work needs a decision — can't call a project "done" while ignoring it), (3) STATE.md reflects both levels.
+
+**Impact:** Changes Phase 4 (Blocker = not done, Minor = BACKLOG.md), architecture.md (STATE.md format updated), Phase 2 (project init creates STATE.md with new format).
+
+### Decision 24: Start B — how quality is evaluated and what triggers improve vs proceed (details for Decision 17)
+
+**What:** Start B assesses materials on two dimensions — not document quality, but information completeness:
+
+**1. Project foundations** (same 5 from Start A Step 1):
+Goal, Vision, Target user, Why, What it does.
+
+**2. Feature clarity** — can we list the product's features/screens and roughly understand what each does? Not detailed specs (that's PRD generation), just enough to know what exists.
+
+**Assessment mechanism:** After mapping materials (Step 2), Claude produces a structured assessment table:
+- Each foundation: `✓ clear` (with evidence from materials) or `⚠️ unclear` (with what's missing)
+- Each feature: source, and whether it's ready for PRD generation
+- Verdict: PROCEED or IMPROVE (with specific gaps listed)
+
+**Proceed when:**
+- All 5 foundations are clear
+- Feature list is known with enough context for PRD generation
+
+**Improve when:**
+- Any foundation is missing or ambiguous
+- Can't list the features/screens
+- Materials contradict each other (contradictions = gap)
+
+**Deferred foundations — queue, don't block:**
+- If user doesn't answer a foundation question, Claude marks it `⚠️ unclear`, suggests its best answer, and continues working
+- As Claude gathers more context (feature deep-dives, mapping), it returns to unclear items with informed suggestions: "Based on what you described about X, I think the target user is Y — correct?"
+- **Hard gate before PRD generation:** all 5 foundations must be `✓ clear`. If anything remains `⚠️ unclear`, Claude returns to it with a suggestion grounded in the context gathered so far
+
+**Improve path is targeted:**
+- Enters Start A steps 4-7 but only for identified gaps — doesn't restart scope shaping from scratch
+- Foundations are resolved conversationally (they're decisions)
+- Features are resolved document-based (Claude drafts from materials, user corrects)
+
+**Assessment is adaptive:**
+- Doesn't check for things the project doesn't need (no i18n check for single-market tool, no PWA check for desktop app)
+- Checks information, not format — works for client briefs, Figma files, meeting notes, partial specs, or existing codebases
+
+**Why:** Decision 17 (`/gsr:learn` as Start B entry) defined the mechanism but not the assessment criteria. This adds: (1) what "quality" means (foundations + feature clarity), (2) the proceed/improve threshold, (3) the deferred foundations pattern (queue gaps, don't block, hard gate before PRD).
+
+**Impact:** Changes Phase 0 (Start B steps 2-4 get structured assessment format + deferred foundations pattern).
+
+### Decision 25: Sweep parallelization — file-level partitioning, zero conflicts by design (details for Decision 18)
+
+**What:** Parallel agents in systematic mode (Mode B) are coordinated through strict file-level partitioning — no two agents ever touch the same file. This is a hard constraint enforced at task assignment time, not a convention.
+
+**Two-phase execution:**
+
+**Phase 1 — Parallel (agents):** Each agent gets a sweep brief (CLAUDE.md content, relevant feature file, explicit constraints) and works on assigned files only. No agent modifies a file assigned to another agent. Zero conflicts — not by merge resolution, by prevention.
+
+**Phase 2 — Sequential (single Claude):** After all agents complete, one pass handles:
+- Shared files (indexes, configs, wiring imports)
+- Consistency check (same conventions across all agent output)
+- Atomic commits for the wiring
+
+**Sweep brief:** Snapshot of shared context given to every agent:
+- CLAUDE.md conventions + learned rules
+- Relevant feature file(s)
+- Explicit constraints for the sweep (e.g., "translate to Polish, formal 'Pan/Pani', keys in camelCase")
+- Task assignment with file boundaries
+
+**Parallelization heuristic:** If you can draw a task → file mapping where no file appears twice → parallelize. If not → sequential.
+
+**Parallelize:**
+- i18n (per screen — each screen's files are independent)
+- Testing (per feature — each test file is independent)
+- Accessibility audit (per component)
+- Security headers (per route)
+
+**Don't parallelize:**
+- Refactoring (changes cascade across files)
+- Shared state changes (same reducer, same store)
+- Cross-file dependencies (agent A creates util, agent B needs it)
+
+**No worktrees, no merge:** Agents share the same filesystem. File partitioning eliminates conflicts entirely — no git worktrees needed, no merge step, no post-hoc conflict resolution.
+
+**Why:** Decision 18 resolved the "what mechanism" (subagents, not agentic teams). This resolves the "how exactly" — how subagents avoid conflicts, how they share context, and when NOT to parallelize.
+
+**Impact:** Changes Phase 3 (systematic build parallelization section updated with two-phase execution model + partitioning heuristic).
+
+---
+
 ## Phase 4: What's Still Open
 
 | # | Topic | Status |
 |---|-------|--------|
-| 4 | Done signals (project-level) | **Partially resolved** — per-feature done is clear (Decision 16). "When is the whole project done?" still open. |
+| 4 | Done signals (project-level) | **Resolved** — Decision 23. Phase done = verification PASS (no Blockers) + demo verified + HUMAN items resolved. Project done = all phases PASS + backlog triaged + nothing "must before launch." |
 
 ---
 
@@ -292,8 +459,8 @@ Flow: Codebase Onboarding → Feature Scope → Feature File → Build → Verif
 | Document | What it is | Status |
 |----------|-----------|--------|
 | [vision.md](vision.md) | What GSR is, principles, phase overview | Complete — updated for plugin decisions |
-| [phases/0-scope-shaping.md](phases/0-scope-shaping.md) | Phase 0 spec | Complete |
-| [phases/1-prd-generation.md](phases/1-prd-generation.md) | Phase 1 spec | Complete |
+| [phases/0-scope-shaping.md](phases/0-scope-shaping.md) | Phase 0 spec | Complete (updated: don't-hand-roll in Step 2, pitfalls in Step 5) |
+| [phases/1-prd-generation.md](phases/1-prd-generation.md) | Phase 1 spec | Complete (updated: must-haves, demo sentence, don't-hand-roll, pitfalls) |
 | [phases/2-project-init.md](phases/2-project-init.md) | Phase 2 spec (merged into Phase 1 — Decision 15) | Complete |
 | [phases/3-build.md](phases/3-build.md) | Phase 3 spec | Complete — updated for per-feature build |
 | [phases/4-verification.md](phases/4-verification.md) | Phase 4 spec | Complete — updated for per-feature verification |
