@@ -318,18 +318,22 @@ Goal, Vision, Target user, Why, What it does.
 
 **Impact:** Changes Phase 0 (Start B steps 2-4 get structured assessment format + deferred foundations pattern).
 
-### Decision 25: Sweep parallelization — file-level partitioning, zero conflicts by design (details for Decision 18)
+### Decision 25: Sweep parallelization — worktree isolation + file partitioning (details for Decision 18)
 
-**What:** Parallel agents in systematic mode (Mode B) are coordinated through strict file-level partitioning — no two agents ever touch the same file. This is a hard constraint enforced at task assignment time, not a convention.
+**What:** Parallel agents in systematic mode (Mode B) are coordinated through two layers: (1) git worktrees for hard isolation — each agent works in its own worktree, (2) file-level partitioning as the coordination strategy to minimize merge conflicts. Partitioning is enforced at task assignment time.
 
-**Two-phase execution:**
+**Three-phase execution:**
 
-**Phase 1 — Parallel (agents):** Each agent gets a sweep brief (CLAUDE.md content, relevant feature file, explicit constraints) and works on assigned files only. No agent modifies a file assigned to another agent. Zero conflicts — not by merge resolution, by prevention.
+**Phase 1 — Parallel (agents in worktrees):** Each agent spawns in its own git worktree and gets a sweep brief (CLAUDE.md content, relevant feature file, explicit constraints). File partitioning tells agents which files are theirs — worktrees ensure that even if an agent touches an unexpected file, it can't corrupt another agent's work.
 
-**Phase 2 — Sequential (single Claude):** After all agents complete, one pass handles:
+**Phase 2 — Sequential merge:** Worktrees are merged back one at a time (not all-at-once). Sequential merge makes conflicts easy to spot and resolve. If file partitioning held, merges are clean.
+
+**Phase 3 — Wiring (single Claude):** After all worktrees are merged, one pass handles:
 - Shared files (indexes, configs, wiring imports)
 - Consistency check (same conventions across all agent output)
 - Atomic commits for the wiring
+
+**Small sweep shortcut:** For ≤2 agents on a handful of files, worktrees are overhead. Use shared filesystem with file partitioning only. Worktrees kick in at ≥3 agents or when the sweep touches ≥10 files.
 
 **Sweep brief:** Snapshot of shared context given to every agent:
 - CLAUDE.md conventions + learned rules
@@ -350,11 +354,9 @@ Goal, Vision, Target user, Why, What it does.
 - Shared state changes (same reducer, same store)
 - Cross-file dependencies (agent A creates util, agent B needs it)
 
-**No worktrees, no merge:** Agents share the same filesystem. File partitioning eliminates conflicts entirely — no git worktrees needed, no merge step, no post-hoc conflict resolution.
+**Why:** Decision 18 resolved the "what mechanism" (subagents, not agentic teams). This resolves the "how exactly" — worktrees for isolation safety (feedback from CR), file partitioning for conflict avoidance, and when NOT to parallelize.
 
-**Why:** Decision 18 resolved the "what mechanism" (subagents, not agentic teams). This resolves the "how exactly" — how subagents avoid conflicts, how they share context, and when NOT to parallelize.
-
-**Impact:** Changes Phase 3 (systematic build parallelization section updated with two-phase execution model + partitioning heuristic).
+**Impact:** Changes Phase 3 (systematic build parallelization section updated with three-phase execution model + worktree isolation + partitioning heuristic).
 
 ---
 
