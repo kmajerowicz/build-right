@@ -283,7 +283,7 @@ Flow: Codebase Onboarding → Feature Scope → Feature File → Build → Verif
 
 **Build phase done** when all 3 conditions are met:
 1. **Verification report has no Blockers** — anti-patterns with severity Blocker must be resolved before the phase can be marked PASS. Minor items move to BACKLOG.md.
-2. **Demo sentence verified by human** — the first item in the verification report, always a manual check ("open app, verify: [demo sentence]").
+2. **UAT checklist verified by human** — the verification report includes a UAT checklist: plain-language steps with expected outcomes (e.g., "Go to /login, enter credentials → Dashboard loads with user name visible"). Each item is a "do → expect" pair, not a vague prompt. Claude generates the checklist from phase requirements; human marks each item pass/fail.
 3. **All HUMAN-tier items resolved** — verification ladder tier 4 items (things Claude can't verify) have been checked by the human and marked pass/fail.
 
 Phase status flow: `NOT STARTED` → `BUILDING` → `VERIFYING` → `PASS` or `BLOCKED`
