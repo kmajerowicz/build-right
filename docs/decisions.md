@@ -284,7 +284,7 @@ Flow: Codebase Onboarding → Feature Scope → Feature File → Build → Verif
 **1. Project foundations** (same 5 from Start A Step 1):
 Goal, Vision, Target user, Why, What it does.
 
-**2. Feature clarity** — can we list the product's features/screens and roughly understand what each does? Not detailed specs (that's PRD generation), just enough to know what exists.
+**2. Feature clarity** — can we list the product's features and roughly understand what each does? Not detailed specs (that's PRD generation), just enough to know what exists. Features map to functional and non-functional requirements — if client materials describe screens, Claude extracts the underlying features from them.
 
 **Assessment mechanism:** After mapping materials (Step 2), Claude produces a structured assessment table:
 - Each foundation: `✓ clear` (with evidence from materials) or `⚠️ unclear` (with what's missing)
@@ -297,7 +297,7 @@ Goal, Vision, Target user, Why, What it does.
 
 **Improve when:**
 - Any foundation is missing or ambiguous
-- Can't list the features/screens
+- Can't list the features
 - Materials contradict each other (contradictions = gap)
 
 **Deferred foundations — queue, don't block:**
