@@ -23,6 +23,9 @@
 - Before saying done: code compiles, no TS errors, build passes
 - Skills are enforced by the workflow (loaded from feature file), not by Claude remembering a rule
 
+### Debugging
+When a bug or unexpected behavior occurs during build, switch to the systematic debugging process (see `docs/patterns/systematic-debugging.md`). Resume normal build flow after the fix is verified.
+
 ---
 
 ## Mode B: Systematic Build (agent-driven with verification)
@@ -42,6 +45,9 @@
 - Agent reads CLAUDE.md and all accumulated corrections before starting
 - If agent encounters ambiguity requiring product judgment → stops and asks, never decides autonomously
 - Verification is evidence-based: grep results, test output, build status
+
+### Debugging
+When a bug or unexpected behavior occurs during build, switch to the systematic debugging process (see `docs/patterns/systematic-debugging.md`). Resume normal build flow after the fix is verified.
 
 ---
 
