@@ -277,6 +277,29 @@ Flow: Codebase Onboarding → Feature Scope → Feature File → Build → Verif
 
 **Impact:** Resolves backlog item #6 (sweep parallelization). Systematic build mode dispatches subagents for independent tasks. Verification dispatches subagents for independent checks (grep, tests, build, TS errors).
 
+### Decision 23: Done signals — project-level completion
+
+*(Already tracked — see commit history for full text.)*
+
+### Decision 27: Enhanced verification — gate function and evidence protocol
+
+**What:** Strengthens Phase 4 verification and adds verification discipline to Phase 3 build. Inspired by superpowers' "verification-before-completion" skill.
+
+Three additions:
+1. **Gate function** — 5-step protocol before ANY completion claim: IDENTIFY the command that proves it → RUN the command → READ the output → VERIFY it confirms the claim → THEN (and only then) claim done. Applied in both build and verify phases.
+2. **Banned words** — Claude cannot use "should work", "probably works", "seems correct", "looks good" in completion claims. Must use evidence: "build passes (0 errors)", "grep confirms no hardcoded strings", "test suite: 12/12 pass".
+3. **Verification ladder** — 4 tiers of evidence, from cheapest to most expensive:
+   - Tier 1: AUTOMATED (build, TypeScript, lint — machine says pass/fail)
+   - Tier 2: GREP (pattern search — anti-patterns absent, expected patterns present)
+   - Tier 3: TEST (test suite execution — pass/fail with output)
+   - Tier 4: HUMAN (manual check — "open /dashboard, verify cards render")
+
+   Always exhaust lower tiers before asking human. Never ask human to check something a grep could answer.
+
+**Why:** GSR Phase 4 was ~40 lines and high-level. Real verification needs mechanical discipline — the same task done the same way every time. The gate function prevents premature "done" claims. The banned words prevent weasel language. The ladder prevents wasting human time on things machines can check.
+
+**Impact:** Phase 4 spec updated. Phase 3 build spec gains "mini-verification" after each task in both modes. No new commands, no new artifacts, no flow changes.
+
 ---
 
 ## Phase 4: What's Still Open
