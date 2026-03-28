@@ -42,6 +42,7 @@
 - Agent reads CLAUDE.md and all accumulated corrections before starting
 - If agent encounters ambiguity requiring product judgment → stops and asks, never decides autonomously
 - Verification is evidence-based: grep results, test output, build status
+- Subagents follow the role separation and status protocol defined in `docs/patterns/subagent-patterns.md`. Each task dispatched to an implementer subagent includes full context handoff. In systematic mode, a reviewer subagent checks each implementer's output before the commit.
 
 ---
 
@@ -66,7 +67,7 @@ If it has clear pass/fail criteria and no design judgment → systematic (Mode B
 
 ## Parallelization
 
-Independent systematic tasks can run in parallel via multiple agents. All parallel agents share the same CLAUDE.md context — they run concurrently but with the same instruction manual and accumulated corrections.
+Independent systematic tasks can run in parallel via multiple agents. All parallel agents share the same CLAUDE.md context — they run concurrently but with the same instruction manual and accumulated corrections. Parallel subagents follow the dispatch patterns in `docs/patterns/subagent-patterns.md`. Each gets independent context — no shared state between parallel agents except CLAUDE.md conventions.
 
 Specific parallelization opportunities:
 - Independent systematic tasks in sweep mode

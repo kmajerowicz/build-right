@@ -277,6 +277,33 @@ Flow: Codebase Onboarding → Feature Scope → Feature File → Build → Verif
 
 **Impact:** Resolves backlog item #6 (sweep parallelization). Systematic build mode dispatches subagents for independent tasks. Verification dispatches subagents for independent checks (grep, tests, build, TS errors).
 
+### Decision 29: Subagent patterns — role separation and status protocol
+
+**What:** Detailed operational patterns for subagent dispatch in GSR. Completes Decision 18 (subagents for parallelism) with concrete roles, handoff protocol, and status reporting. Inspired by superpowers' subagent-driven-development skill.
+
+Three patterns:
+
+1. **Role separation** — subagents have defined roles:
+   - **Implementer** — fresh context, does the work, reports status
+   - **Reviewer** — checks implementer's work against spec (systematic mode only)
+   - **Researcher** — gathers information, returns findings (scope/PRD phases)
+
+2. **Status protocol** — every subagent reports one of exactly 4 statuses:
+   - `DONE` — task complete, all checks pass
+   - `DONE_WITH_CONCERNS` — task complete but flagging potential issues for controller
+   - `NEEDS_CONTEXT` — blocked on missing information, returns specific questions
+   - `BLOCKED` — cannot proceed, explains why
+
+3. **Context handoff** — controller provides to subagent:
+   - Full task description (subagent never reads plan file itself)
+   - Relevant CLAUDE.md content (conventions, learned rules)
+   - Relevant feature file content (if build task)
+   - Specific success criteria for this task
+
+**Why:** Decision 18 said "subagents, not agentic teams" but left operational details open. Without defined roles and statuses, subagent dispatch becomes ad-hoc — inconsistent handoffs, ambiguous completion claims, no escalation path for blockers. The 4-status protocol makes every outcome explicit.
+
+**Impact:** New patterns reference document (`docs/patterns/subagent-patterns.md`). Build spec and verification spec updated to reference subagent patterns. No flow changes — patterns are internal to how skills dispatch work.
+
 ---
 
 ## Phase 4: What's Still Open
@@ -300,4 +327,5 @@ Flow: Codebase Onboarding → Feature Scope → Feature File → Build → Verif
 | [architecture.md](architecture.md) | How GSR projects are structured | Complete — updated for per-feature STATE.md |
 | [research/analysis.md](research/analysis.md) | Kacper's approach vs GSD comparison | Complete |
 | [plans/2026-03-15-gsr-plugin-design.md](plans/2026-03-15-gsr-plugin-design.md) | Plugin architecture design | Complete |
+| [patterns/subagent-patterns.md](patterns/subagent-patterns.md) | Subagent roles, status protocol, context handoff | Complete |
 | [decisions.md](decisions.md) | This file — decisions made, what's next | Living document |
