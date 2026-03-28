@@ -123,6 +123,25 @@ COMMON RATIONALIZATIONS:
 
 ---
 
+## Growth Model
+
+Enforcement blocks are **not required upfront for every rule.** They grow organically from real experience:
+
+### Day 1 — Start with known problems
+When writing a new skill, add enforcement blocks only for rules where you already know Claude tends to cut corners. The examples in this document (reviewing diffs, "should work", corrections, evidence) come from real, observed failures in Vitis and GSD projects. If you don't have evidence that a rule gets skipped, a clear rule statement is enough.
+
+### Over time — Add from real failures
+When Claude violates a rule during actual use, that's the signal to add an enforcement block. Capture the exact rationalization Claude used — that's the most valuable Red Flag you can write, because it's real, not hypothetical.
+
+### What this means for skill authors
+- **You don't need to anticipate every rationalization** — start with what you know, grow with what you observe
+- **An enforcement block added after a real failure is worth ten written speculatively** — real rationalizations are specific and convincing; speculative ones are generic and easy to dismiss
+- **The examples in this document are seeds** — they cover GSR's core rules based on known failure modes. New skills should start lean and add enforcement as patterns emerge
+
+This is consistent with GSR's design principles: corrections compound (Decision 9), adaptive not prescriptive (Principle 7). Enforcement follows the same philosophy — it compounds from experience.
+
+---
+
 ## Guidelines for Skill Authors
 
 - **Keep enforcement blocks concise** — aim for ~10-15 lines each (rule + 3-4 red flags + 3 rationalizations)
@@ -130,3 +149,4 @@ COMMON RATIONALIZATIONS:
 - **Be specific** — "this is too small to review" is better than "I want to skip this step"
 - **Update based on real failures** — when Claude violates a rule in practice, add the exact rationalization it used
 - **Place enforcement blocks inline** in the skill file, right after the rule they enforce — not in a separate section
+- **Don't over-enforce on day 1** — start with known problem areas, let the rest emerge from practice
