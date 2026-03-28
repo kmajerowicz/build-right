@@ -306,6 +306,30 @@ Project status flow: `IN PROGRESS` → `BACKLOG TRIAGE` → `DONE`
 
 **Impact:** Changes Phase 4 (Blocker = not done, Minor = BACKLOG.md), architecture.md (STATE.md format updated), Phase 2 (project init creates STATE.md with new format).
 
+### Decision 30: Plan execution with checkpoints — structured build within /gsr:build
+
+**What:** Strengthens how plans are created and executed within `/gsr:build`. Currently the build spec says "plan mode if >2 files" — this adds structure to what that plan looks like and how execution proceeds. Inspired by superpowers' writing-plans and executing-plans skills.
+
+Three additions:
+
+1. **File map before coding** — every plan starts with a list of files that will be created or modified. This serves as a scope check: "I'm going to touch these 5 files to implement this feature" — user can spot scope creep before any code is written.
+
+2. **Checkpoint after each task** — after completing each task in the plan:
+   - Mini-verification: build passes, no TS errors (gate function from Decision 27)
+   - Atomic commit
+   - Brief status: "Task 3/7 done. Dashboard card component renders with mock data. Next: wire up real data."
+   - STATE.md auto-update
+
+3. **Rollback on failure** — if a task breaks the build:
+   - Don't pile fixes on top of broken code
+   - Revert to last checkpoint (last passing commit)
+   - Re-approach the task differently
+   - If same task fails twice, escalate to user
+
+**Why:** "Plan mode if >2 files" was too vague. Without file maps, plans touch unexpected files. Without checkpoints, failures cascade. Without rollback strategy, broken builds get patched with more broken code. These are cheap safeguards that don't slow the flow.
+
+**Impact:** Build spec updated with plan structure and checkpoint protocol. No new commands, no new artifacts.
+
 ---
 
 ## Phase 4: What's Still Open
