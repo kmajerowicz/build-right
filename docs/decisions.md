@@ -277,6 +277,35 @@ Flow: Codebase Onboarding → Feature Scope → Feature File → Build → Verif
 
 **Impact:** Resolves backlog item #6 (sweep parallelization). Systematic build mode dispatches subagents for independent tasks. Verification dispatches subagents for independent checks (grep, tests, build, TS errors).
 
+### Decision 23: Done signals — phase done and project done (completes Decision 16)
+
+**What:** Two levels of "done," both with clear mechanical checks. Completes the project-level done signal left open by Decision 16 (per-feature done).
+
+**Build phase done** when all 3 conditions are met:
+1. **Verification report has no Blockers** — anti-patterns with severity Blocker must be resolved before the phase can be marked PASS. Minor items move to BACKLOG.md.
+2. **UAT checklist verified by human** — the verification report includes a UAT checklist: plain-language steps with expected outcomes (e.g., "Go to /login, enter credentials → Dashboard loads with user name visible"). Each item is a "do → expect" pair, not a vague prompt. Claude generates the checklist from phase requirements; human marks each item pass/fail.
+3. **All HUMAN-tier items resolved** — verification ladder tier 4 items (things Claude can't verify) have been checked by the human and marked pass/fail.
+
+Phase status flow: `NOT STARTED` → `BUILDING` → `VERIFYING` → `PASS` or `BLOCKED`
+- `BLOCKED` means verification found Blockers — resolve them (they become tasks in the current phase), then re-verify.
+
+**Project done** when all 3 conditions are met:
+1. **All build phases PASS** — every phase has a verification report with no Blockers.
+2. **Backlog triaged** — after the last phase, human reviews BACKLOG.md and categorizes every item: "must before launch" / "v2" / "won't do."
+3. **Nothing in "must before launch"** — if any items are "must before launch," they become a new build phase. Project is done only when that phase also passes.
+
+Project status flow: `IN PROGRESS` → `BACKLOG TRIAGE` → `DONE`
+- `BACKLOG TRIAGE` triggers automatically after the last planned phase passes.
+
+**STATE.md changes:**
+- Add top-level `Project Status` field (IN PROGRESS / BACKLOG TRIAGE / DONE)
+- Phase progress table adds `Verification` column showing PASS date or BLOCKED
+- Phase statuses: NOT STARTED / BUILDING / VERIFYING / PASS / BLOCKED
+
+**Why:** Decision 16 resolved per-feature done signals but left "when is the whole project done?" open. The answer: (1) explicit Blocker vs Minor severity rule for phase completion, (2) backlog triage after all phases (deferred work needs a decision — can't call a project "done" while ignoring it), (3) STATE.md reflects both levels.
+
+**Impact:** Changes Phase 4 (Blocker = not done, Minor = BACKLOG.md), architecture.md (STATE.md format updated), Phase 2 (project init creates STATE.md with new format).
+
 ---
 
 ## Phase 3b: Process Detail Decisions
@@ -342,7 +371,7 @@ The demo sentence becomes the first human verification item in Phase 4 ("open ap
 
 | # | Topic | Status |
 |---|-------|--------|
-| 4 | Done signals (project-level) | **Partially resolved** — per-feature done is clear (Decision 16). "When is the whole project done?" still open. |
+| 4 | Done signals (project-level) | **Resolved** — Decision 23. Phase done = verification PASS (no Blockers) + demo verified + HUMAN items resolved. Project done = all phases PASS + backlog triaged + nothing "must before launch." |
 
 ---
 
