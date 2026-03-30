@@ -7,7 +7,7 @@
   "plugins": [
     {
       "name": "gsr",
-      "source": "./",
+      "source": "./gsr/",
       "description": "PRD-first, human-in-the-loop workflow for building production apps. From raw idea to verified MVP.",
       "version": "0.1.0"
     }

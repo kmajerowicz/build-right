@@ -10,5 +10,6 @@
   "repository": "https://github.com/kmajerowicz/get-shit-right",
   "license": "MIT",
   "keywords": ["productivity", "prd", "workflow", "build"],
-  "commands": "./commands/"
+  "commands": "./commands/",
+  "hooks": "./hooks/hooks.json"
 }

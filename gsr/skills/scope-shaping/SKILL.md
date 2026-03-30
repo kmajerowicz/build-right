@@ -48,7 +48,7 @@ Research in parallel using researcher agents:
 "Research [primary competitor]'s UX for [primary use case]. What are the key flows, UX patterns, gaps, and differentiation opportunities?"
 
 **Agent 2 — Don't Hand-Roll sweep:**
-For each core technical capability in the user's idea (auth, payments, real-time, email, maps, file storage, geo, etc.), identify the best existing library/service. Use `agents/researcher.md` format.
+For each core technical capability in the user's idea (auth, payments, real-time, email, maps, file storage, geo, etc.), identify the best existing library/service. Use `${CLAUDE_PLUGIN_ROOT}/agents/researcher.md` format.
 
 Results feed directly into scope and later into feature files. Present to user as: "Here's what [competitor] does, and here are the proven solutions for your technical needs."
 
@@ -185,13 +185,13 @@ In Step 6, sweep all flags and triage them (blocking scope / blocking PRD / bloc
 - Claude drives ~70% through structure and questions, user drives ~30% through corrections
 - User's strongest contribution: domain expertise and corrections
 - Claude's strongest contribution: structure, edge cases, "what happens when X is empty/missing"
-- **Multi-option decisions use the decision gate pattern.** Read `docs/patterns/decision-gate.md`. Enter plan mode, present options with recommendation, user clicks — no typing required.
+- **Multi-option decisions use the decision gate pattern.** Read `${CLAUDE_PLUGIN_ROOT}/docs/patterns/decision-gate.md`. Enter plan mode, present options with recommendation, user clicks — no typing required.
 
 ---
 
 ## Output: docs/scope.md
 
-Use `templates/scope-md.md` as the structure. Fill in:
+Use `${CLAUDE_PLUGIN_ROOT}/templates/scope-md.md` as the structure. Fill in:
 - Project foundations (all 5)
 - Navigation and screens
 - Core concepts

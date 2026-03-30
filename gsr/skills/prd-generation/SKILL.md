@@ -34,7 +34,7 @@ Before doing anything, check if `docs/PRD.md` already exists.
 
 ## Step 1: Generate PRD.md
 
-Use `templates/prd-md.md` as the structure. Fill in from scope.md:
+Use `${CLAUDE_PLUGIN_ROOT}/templates/prd-md.md` as the structure. Fill in from scope.md:
 
 1. **Project summary** — 2-3 sentences: what, for whom, why
 2. **Business goals** — measurable goals + success metrics
@@ -73,7 +73,7 @@ Scan for any decision that is ambiguous, assumed, or marked ⚠️. List them �
 
 After self-verification: fix any bugs you found, then present PRD.md with a summary of what you fixed.
 
-For each open decision or ambiguous assumption found: use the decision gate pattern (`docs/patterns/decision-gate.md`). Enter plan mode, present options with recommendation, user clicks. One decision at a time.
+For each open decision or ambiguous assumption found: use the decision gate pattern (`${CLAUDE_PLUGIN_ROOT}/docs/patterns/decision-gate.md`). Enter plan mode, present options with recommendation, user clicks. One decision at a time.
 
 **Final step — always, regardless of how many decisions were resolved:**
 Ask the user to read through the full PRD themselves: "Please read through the PRD — does it accurately represent the product? Anything to adjust?"
@@ -83,7 +83,7 @@ Do not proceed to feature files until the user explicitly confirms.
 
 ## Step 2: Generate Feature Files (one per feature)
 
-For each feature in the feature index, generate `docs/features/<name>.md` using `templates/feature-md.md`.
+For each feature in the feature index, generate `docs/features/<name>.md` using `${CLAUDE_PLUGIN_ROOT}/templates/feature-md.md`.
 
 **No skills matching here.** Skills are matched to tasks at build time, not at feature file generation time. Do not add a Skills section to feature files.
 
@@ -134,7 +134,7 @@ For each feature, define must-haves at product level (no file paths):
 
 ### Generate the Feature File
 
-Fill in `templates/feature-md.md` with everything found above. No Skills section. Present to user for review after each feature, or batch if they prefer.
+Fill in `${CLAUDE_PLUGIN_ROOT}/templates/feature-md.md` with everything found above. No Skills section. Present to user for review after each feature, or batch if they prefer.
 
 ---
 
@@ -143,23 +143,23 @@ Fill in `templates/feature-md.md` with everything found above. No Skills section
 After PRD.md and feature files are complete (and reviewed), create the project infrastructure:
 
 ### Create CLAUDE.md
-Use `templates/claude-md.md`. Fill in:
+Use `${CLAUDE_PLUGIN_ROOT}/templates/claude-md.md`. Fill in:
 - Project name from PRD
 - References section: where things live (schema path, routes path, design tokens path — infer from tech stack, mark as placeholders if not yet implemented)
 - Code conventions: infer from tech stack and any patterns mentioned in scope. Use sensible defaults.
 
 ### Create docs/STATE.md
-Use `templates/state-md.md`. Fill in:
+Use `${CLAUDE_PLUGIN_ROOT}/templates/state-md.md`. Fill in:
 - Phase progress table from PRD build phases
 - Feature progress table for Phase 1 features
 - Next action: "Run `/gsr:build` → pick a feature from Phase 1"
 
 ### Create docs/BACKLOG.md
-Use `templates/backlog-md.md`. Fill in:
+Use `${CLAUDE_PLUGIN_ROOT}/templates/backlog-md.md`. Fill in:
 - Deferred from Scope: everything in scope.md's v2 backlog
 
 ### Create docs/techstack.md
-Use `templates/techstack-md.md`. Fill in:
+Use `${CLAUDE_PLUGIN_ROOT}/templates/techstack-md.md`. Fill in:
 - Tech stack from scope.md
 - Project-wide skills (responsive-design, etc. — based on what was identified as project-wide)
 

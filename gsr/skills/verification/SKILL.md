@@ -196,7 +196,7 @@ Present the triage as a table:
 | [item] | Won't do | [why it's no longer needed] |
 ```
 
-For any item where the categorization is non-obvious or you're uncertain: use the decision gate pattern (`docs/patterns/decision-gate.md`). Enter plan mode, present the options with your recommendation, user clicks.
+For any item where the categorization is non-obvious or you're uncertain: use the decision gate pattern (`${CLAUDE_PLUGIN_ROOT}/docs/patterns/decision-gate.md`). Enter plan mode, present the options with your recommendation, user clicks.
 
 For items where the categorization is clear: include them in the table without a decision gate — just present and ask for confirmation at the end: "Does this look right? Adjust any categorizations before we finalize."
 

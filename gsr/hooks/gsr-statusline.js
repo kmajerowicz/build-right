@@ -112,7 +112,7 @@ process.stdin.on('end', () => {
     let updateBadge = '';
     try {
       const claudeDir = process.env.CLAUDE_CONFIG_DIR || path.join(os.homedir(), '.claude');
-      const installedPluginJson = path.join(claudeDir, 'plugins', 'marketplaces', 'gsr', '.claude-plugin', 'plugin.json');
+      const installedPluginJson = path.join(claudeDir, 'plugins', 'marketplaces', 'gsr', 'gsr', '.claude-plugin', 'plugin.json');
       const cachePath = path.join(os.tmpdir(), 'gsr-update-check.json');
       const DAY_SECONDS = 86400;
       const now = Math.floor(Date.now() / 1000);
@@ -132,7 +132,7 @@ process.stdin.on('end', () => {
           const installedPath = ${JSON.stringify(installedPluginJson)};
           let installed = '0.0.0';
           try { installed = JSON.parse(fs.readFileSync(installedPath, 'utf8')).version || '0.0.0'; } catch(e) {}
-          https.get('https://raw.githubusercontent.com/kmajerowicz/get-shit-right/main/.claude-plugin/plugin.json', res => {
+          https.get('https://raw.githubusercontent.com/kmajerowicz/get-shit-right/main/gsr/.claude-plugin/plugin.json', res => {
             let d = '';
             res.on('data', c => d += c);
             res.on('end', () => {

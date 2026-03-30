@@ -1,6 +1,6 @@
 You are running the `/gsr:prd` command.
 
-Load and execute the PRD generation skill: read `skills/prd-generation/SKILL.md` in full, then follow its instructions exactly.
+Load and execute the PRD generation skill: read `${CLAUDE_PLUGIN_ROOT}/skills/prd-generation/SKILL.md` in full, then follow its instructions exactly.
 
 Your output from this session will be:
 - `docs/PRD.md` — condensed product knowledge

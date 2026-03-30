@@ -61,10 +61,10 @@ Based on what you found in Step 1, handle each scenario:
 
 ### No GSR setup (CLAUDE.md missing or no GSR references)
 Create from scratch:
-- `CLAUDE.md` from `templates/claude-md.md` — fill in project name, stack references, conventions found in Step 2
-- `docs/techstack.md` from `templates/techstack-md.md` — fill in stack detected
-- `docs/STATE.md` from `templates/state-md.md` — minimal placeholder
-- `docs/BACKLOG.md` from `templates/backlog-md.md` — empty
+- `CLAUDE.md` from `${CLAUDE_PLUGIN_ROOT}/templates/claude-md.md` — fill in project name, stack references, conventions found in Step 2
+- `docs/techstack.md` from `${CLAUDE_PLUGIN_ROOT}/templates/techstack-md.md` — fill in stack detected
+- `docs/STATE.md` from `${CLAUDE_PLUGIN_ROOT}/templates/state-md.md` — minimal placeholder
+- `docs/BACKLOG.md` from `${CLAUDE_PLUGIN_ROOT}/templates/backlog-md.md` — empty
 - `docs/features/` — create directory (empty)
 
 ### CLAUDE.md exists, no PRD

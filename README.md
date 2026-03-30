@@ -150,7 +150,7 @@ GSR includes two terminal hooks that install automatically on first session star
 To install manually:
 
 ```bash
-node ~/.claude/plugins/marketplaces/gsr/hooks/install.js
+node ~/.claude/plugins/marketplaces/gsr/gsr/hooks/install.js
 ```
 
 Restart Claude Code after installing.

@@ -46,7 +46,7 @@ Once the user picks a feature, read:
 2. `docs/features/<name>.md` — the complete product spec
 3. `docs/techstack.md` — project-wide skills
 
-**Prerequisite check:** Before loading anything else, scan the feature file for dependencies on other features. Cross-reference with STATE.md. If any prerequisite feature is `not started`, `in progress`, or `blocked`: use the decision gate pattern (`docs/patterns/decision-gate.md`). Enter plan mode and present:
+**Prerequisite check:** Before loading anything else, scan the feature file for dependencies on other features. Cross-reference with STATE.md. If any prerequisite feature is `not started`, `in progress`, or `blocked`: use the decision gate pattern (`${CLAUDE_PLUGIN_ROOT}/docs/patterns/decision-gate.md`). Enter plan mode and present:
 
 **Option 1 — Build [prerequisite] first**
 Safe path. Avoids integration failures mid-build.
@@ -64,7 +64,7 @@ Wait for user to click. Do not proceed silently.
 
 ## Step 3: Mode Selection
 
-Use the decision gate pattern (`docs/patterns/decision-gate.md`). Enter plan mode and present:
+Use the decision gate pattern (`${CLAUDE_PLUGIN_ROOT}/docs/patterns/decision-gate.md`). Enter plan mode and present:
 
 **Option 1 — Creative**
 You review every diff as it's written. Best for UI, screens, design-sensitive work.
@@ -105,7 +105,7 @@ If a skill covers multiple tasks, list it once and note which tasks it applies t
 
 ### Verification gate
 
-Present the table to the user. Use the decision gate pattern (`docs/patterns/decision-gate.md`) for any skill where there are multiple options.
+Present the table to the user. Use the decision gate pattern (`${CLAUDE_PLUGIN_ROOT}/docs/patterns/decision-gate.md`) for any skill where there are multiple options.
 
 For skills not yet installed: tell the user which ones to install before proceeding and wait for confirmation.
 
@@ -152,7 +152,7 @@ Once confirmed: load each installed skill's SKILL.md before writing any code.
 If any check fails → fix it. Then run all checks again. Then claim done with: "done, test it — build passes (0 errors), TS clean."
 
 **When stuck or something breaks:**
-Switch to systematic debugging. Read `docs/patterns/systematic-debugging.md`. Follow the 4-phase process (OBSERVE → HYPOTHESIZE → TEST → CONCLUDE). Return to build flow after fix is verified.
+Switch to systematic debugging. Read `${CLAUDE_PLUGIN_ROOT}/docs/patterns/systematic-debugging.md`. Follow the 4-phase process (OBSERVE → HYPOTHESIZE → TEST → CONCLUDE). Return to build flow after fix is verified.
 
 **When the user makes a correction:**
 After implementing: "This is now the expected behavior. Should I add this to CLAUDE.md Learned Rules so it applies to future work?"
@@ -182,9 +182,9 @@ Sequential: task [3] depends on [1]
 4. **User must approve task list + skills before anything executes.** This gate is non-negotiable.
 
 4. Execute tasks — parallelizable ones via subagent implementers:
-   - Read `agents/implementer.md` for the implementer agent role
+   - Read `${CLAUDE_PLUGIN_ROOT}/agents/implementer.md` for the implementer agent role
    - Each agent gets: task description, CLAUDE.md content, feature file content, file boundaries, success criteria
-   - In systematic mode, dispatch a reviewer agent after each implementer: read `agents/reviewer.md`
+   - In systematic mode, dispatch a reviewer agent after each implementer: read `${CLAUDE_PLUGIN_ROOT}/agents/reviewer.md`
    - Reviewer checks: spec compliance, integration safety, convention adherence, regression risk
 
 5. For ≥3 agents or ≥10 files: use worktree isolation (Decision 25)
