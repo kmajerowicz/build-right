@@ -365,6 +365,87 @@ The demo sentence becomes the first human verification item in Phase 4 ("open ap
 
 **Impact:** Changes Phase 1 (build phases require Demo field), Phase 4 (demo sentence is first human check).
 
+### Decision 24: Start B — how quality is evaluated and what triggers improve vs proceed (details for Decision 17)
+
+**What:** Start B assesses materials on two dimensions — not document quality, but information completeness:
+
+**1. Project foundations** (same 5 from Start A Step 1):
+Goal, Vision, Target user, Why, What it does.
+
+**2. Feature clarity** — can we list the product's features and roughly understand what each does? Not detailed specs (that's PRD generation), just enough to know what exists. Features map to functional and non-functional requirements — if client materials describe screens, Claude extracts the underlying features from them.
+
+**Assessment mechanism:** After mapping materials (Step 2), Claude produces a structured assessment table:
+- Each foundation: `✓ clear` (with evidence from materials) or `⚠️ unclear` (with what's missing)
+- Each feature: source, and whether it's ready for PRD generation
+- Verdict: PROCEED or IMPROVE (with specific gaps listed)
+
+**Proceed when:**
+- All 5 foundations are clear
+- Feature list is known with enough context for PRD generation
+
+**Improve when:**
+- Any foundation is missing or ambiguous
+- Can't list the features
+- Materials contradict each other (contradictions = gap)
+
+**Deferred foundations — queue, don't block:**
+- If user doesn't answer a foundation question, Claude marks it `⚠️ unclear`, suggests its best answer, and continues working
+- As Claude gathers more context (feature deep-dives, mapping), it returns to unclear items with informed suggestions: "Based on what you described about X, I think the target user is Y — correct?"
+- **Hard gate before PRD generation:** all 5 foundations must be `✓ clear`. If anything remains `⚠️ unclear`, Claude returns to it with a suggestion grounded in the context gathered so far
+
+**Improve path is targeted:**
+- Enters Start A steps 4-7 but only for identified gaps — doesn't restart scope shaping from scratch
+- Foundations are resolved conversationally (they're decisions)
+- Features are resolved document-based (Claude drafts from materials, user corrects)
+
+**Assessment is adaptive:**
+- Doesn't check for things the project doesn't need (no i18n check for single-market tool, no PWA check for desktop app)
+- Checks information, not format — works for client briefs, Figma files, meeting notes, partial specs, or existing codebases
+
+**Why:** Decision 17 (`/gsr:learn` as Start B entry) defined the mechanism but not the assessment criteria. This adds: (1) what "quality" means (foundations + feature clarity), (2) the proceed/improve threshold, (3) the deferred foundations pattern (queue gaps, don't block, hard gate before PRD).
+
+**Impact:** Changes Phase 0 (Start B steps 2-4 get structured assessment format + deferred foundations pattern).
+
+### Decision 25: Sweep parallelization — worktree isolation + file partitioning (details for Decision 18)
+
+**What:** Parallel agents in systematic mode (Mode B) are coordinated through two layers: (1) git worktrees for hard isolation — each agent works in its own worktree, (2) file-level partitioning as the coordination strategy to minimize merge conflicts. Partitioning is enforced at task assignment time.
+
+**Three-phase execution:**
+
+**Phase 1 — Parallel (agents in worktrees):** Each agent spawns in its own git worktree and gets a sweep brief (CLAUDE.md content, relevant feature file, explicit constraints). File partitioning tells agents which files are theirs — worktrees ensure that even if an agent touches an unexpected file, it can't corrupt another agent's work.
+
+**Phase 2 — Sequential merge:** Worktrees are merged back one at a time (not all-at-once). Sequential merge makes conflicts easy to spot and resolve. If file partitioning held, merges are clean.
+
+**Phase 3 — Wiring (single Claude):** After all worktrees are merged, one pass handles:
+- Shared files (indexes, configs, wiring imports)
+- Consistency check (same conventions across all agent output)
+- Atomic commits for the wiring
+
+**Small sweep shortcut:** For ≤2 agents on a handful of files, worktrees are overhead. Use shared filesystem with file partitioning only. Worktrees kick in at ≥3 agents or when the sweep touches ≥10 files.
+
+**Sweep brief:** Snapshot of shared context given to every agent:
+- CLAUDE.md conventions + learned rules
+- Relevant feature file(s)
+- Explicit constraints for the sweep (e.g., "translate to Polish, formal 'Pan/Pani', keys in camelCase")
+- Task assignment with file boundaries
+
+**Parallelization heuristic:** If you can draw a task → file mapping where no file appears twice → parallelize. If not → sequential.
+
+**Parallelize:**
+- i18n (per screen — each screen's files are independent)
+- Testing (per feature — each test file is independent)
+- Accessibility audit (per component)
+- Security headers (per route)
+
+**Don't parallelize:**
+- Refactoring (changes cascade across files)
+- Shared state changes (same reducer, same store)
+- Cross-file dependencies (agent A creates util, agent B needs it)
+
+**Why:** Decision 18 resolved the "what mechanism" (subagents, not agentic teams). This resolves the "how exactly" — worktrees for isolation safety (feedback from CR), file partitioning for conflict avoidance, and when NOT to parallelize.
+
+**Impact:** Changes Phase 3 (systematic build parallelization section updated with three-phase execution model + worktree isolation + partitioning heuristic).
+
 ---
 
 ## Phase 4: What's Still Open
