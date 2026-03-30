@@ -44,6 +44,7 @@ claude plugin install gsr
 | `/gsr:build` | Build a specific feature — creative (you review every diff) or systematic (agent-driven) |
 | `/gsr:verify` | Verify a feature or phase with evidence — build passes, grep results, human checks |
 | `/gsr:learn` | Index an existing codebase, populate CLAUDE.md, and get told what to do next |
+| `/gsr:feedback` | Log a bug report, feature request, or change request to BACKLOG.md |
 | `/gsr:update` | Update GSR to the latest version and reinstall hooks |
 
 Each command tells you what to run next. Context clears between commands — state lives in files.

@@ -1,6 +1,13 @@
 # BACKLOG.md — [Project Name]
 
-Items explicitly deferred during scope, PRD generation, or build.
+Items explicitly deferred during scope, PRD generation, or build — plus feedback captured via `/gsr:feedback`.
+
+---
+
+## Feedback
+
+| Title | Type | Area | Description | Date |
+|-------|------|------|-------------|------|
 
 ---
 
