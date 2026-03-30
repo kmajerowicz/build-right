@@ -1,0 +1,52 @@
+#!/usr/bin/env node
+
+/**
+ * GSR Session Start Hook
+ * Injects awareness of /gsr:* commands and project state into conversation context.
+ * Runs on session start, resume, clear, and compact.
+ */
+
+const fs = require('fs');
+const path = require('path');
+
+const cwd = process.env.CLAUDE_CWD || process.cwd();
+
+// Check if this is a GSR project
+const stateFile = path.join(cwd, 'docs', 'STATE.md');
+const claudeFile = path.join(cwd, 'CLAUDE.md');
+const isGsrProject = fs.existsSync(stateFile) || (
+  fs.existsSync(claudeFile) &&
+  fs.readFileSync(claudeFile, 'utf8').includes('GSR')
+);
+
+if (isGsrProject) {
+  // Read current state
+  let stateSnippet = '';
+  if (fs.existsSync(stateFile)) {
+    const state = fs.readFileSync(stateFile, 'utf8');
+    // Extract just the first 20 lines (current focus + phase progress)
+    stateSnippet = state.split('\n').slice(0, 20).join('\n');
+  }
+
+  console.log(`
+<gsr-context>
+This is a GSR (Get Shit Right) project. Available commands:
+- /gsr:scope  — shape idea into structured scope
+- /gsr:prd    — generate PRD + feature files + project init
+- /gsr:build  — build a specific feature (pick from feature files)
+- /gsr:verify — verify feature or phase against PRD criteria
+- /gsr:learn  — (re)index codebase, refresh CLAUDE.md
+
+${stateSnippet ? `Current project state:\n${stateSnippet}` : ''}
+</gsr-context>
+`);
+} else {
+  // Not a GSR project — remind user GSR is available
+  console.log(`
+<gsr-context>
+GSR (Get Shit Right) is available. To start:
+- New project: run /gsr:scope
+- Existing project: run /gsr:learn
+</gsr-context>
+`);
+}

@@ -1,0 +1,7 @@
+{
+  "name": "gsr",
+  "version": "0.1.0",
+  "description": "Get Shit Right — PRD-first, human-in-the-loop workflow for building production apps",
+  "author": { "name": "Marcin Jarota" },
+  "license": "MIT"
+}
