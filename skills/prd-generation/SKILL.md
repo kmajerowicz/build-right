@@ -43,7 +43,34 @@ Use `templates/prd-md.md` as the structure. Fill in from scope.md:
 
 **PRD.md must be 200-300 lines.** If it grows past 400, something belongs in a feature file.
 
-Present PRD.md to the user for review before moving to feature files. Ask: "Does this accurately represent the product? Any misalignments?"
+Before presenting to the user, run a mandatory self-verification pass:
+
+### PRD Self-Verification (do this before showing the user)
+
+**1. Cross-phase dependency check**
+For every feature in every phase, ask: does this feature depend on something that is only delivered in a later phase? Common traps:
+- UI component references a service built in a later phase
+- Phase N demo sentence requires data only available after Phase N+2
+- Shared infrastructure (service workers, auth middleware, caching) used before it's scaffolded
+
+List every conflict found. For each: either move the dependency earlier, swap phase order, or add a "scaffold in Phase X, complete in Phase Y" note.
+
+**2. Internal consistency check**
+- Auth type — does it match across all sections (architecture diagram, data model, onboarding flow, feature descriptions)?
+- Screen/step counts — do counts in section headers match the list of actual screens?
+- Data model — does every feature have the entities it needs? Does any feature reference a field that doesn't exist in the model?
+- Out-of-scope list — does anything in "explicitly out" contradict something that's required by an in-scope feature?
+
+**3. Open decision check**
+Scan for any decision that is ambiguous, assumed, or marked ⚠️. List them — these become challenge questions for the user.
+
+After self-verification: fix any bugs you found, then present PRD.md with a summary of what you fixed.
+
+For each open decision or ambiguous assumption found: use the decision gate pattern (`docs/patterns/decision-gate.md`). Enter plan mode, present options with recommendation, user clicks. One decision at a time.
+
+**Final step — always, regardless of how many decisions were resolved:**
+Ask the user to read through the full PRD themselves: "Please read through the PRD — does it accurately represent the product? Anything to adjust?"
+Do not proceed to feature files until the user explicitly confirms.
 
 ---
 

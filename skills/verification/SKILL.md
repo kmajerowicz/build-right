@@ -174,7 +174,33 @@ Check if all features in the phase are PASS → if yes, phase is PASS.
 
 Check project done conditions:
 1. All phases PASS?
-2. If yes → tell user: "All phases PASS. Time for backlog triage. Review BACKLOG.md — categorize each item: 'must before launch' / 'v2' / 'won't do'."
+2. If yes → run backlog triage (below) before declaring done.
+
+### Backlog Triage (Claude-led)
+
+Read `docs/BACKLOG.md` in full. For each item, classify it:
+
+- **Must before launch** — the product is broken, misleading, or incomplete without this. A user would notice immediately.
+- **v2** — genuinely useful, but the product ships and works without it.
+- **Won't do** — no longer relevant, superseded by something built, or not worth the complexity.
+
+Present the triage as a table:
+
+```
+## Backlog Triage
+
+| Item | Recommendation | Reason |
+|------|---------------|--------|
+| [item] | Must before launch | [why it blocks launch] |
+| [item] | v2 | [why it's post-launch] |
+| [item] | Won't do | [why it's no longer needed] |
+```
+
+For any item where the categorization is non-obvious or you're uncertain: use the decision gate pattern (`docs/patterns/decision-gate.md`). Enter plan mode, present the options with your recommendation, user clicks.
+
+For items where the categorization is clear: include them in the table without a decision gate — just present and ask for confirmation at the end: "Does this look right? Adjust any categorizations before we finalize."
+
+After user confirms:
 3. If any 'must before launch' items → "These become a new build phase. Run `/gsr:build` to continue."
 4. If nothing 'must before launch' → "Project is DONE."
 

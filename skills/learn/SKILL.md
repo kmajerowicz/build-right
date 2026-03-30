@@ -113,10 +113,33 @@ After indexing, output a structured assessment:
 ```
 
 **Next step logic:**
-- No scope and no PRD → "Run `/gsr:scope` to shape your idea into a scope document."
-- Has scope, no PRD → "Run `/gsr:prd` to generate PRD and feature files from your scope."
-- Has PRD → "Run `/gsr:build` to start building features."
-- Full setup → "Re-indexing complete. Run `/gsr:build` to continue."
+
+First check which GSR artifacts exist, then read STATE.md to understand actual project progress:
+
+```
+No scope, no PRD
+  → "Run /gsr:scope to shape your idea into a scope document."
+
+Has scope, no PRD
+  → "Run /gsr:prd to generate PRD and feature files."
+
+Has PRD, no STATE.md or STATE.md is empty
+  → "Run /gsr:prd to generate feature files and initialize STATE.md."
+
+Has full setup → read docs/STATE.md and determine:
+  - Any phase is BLOCKED
+      → "Phase [N] is blocked. Blockers: [list from STATE.md]. Resolve these before continuing."
+  - Current phase has features in progress
+      → "You're mid-phase [N]. [Feature] is in progress. Run /gsr:build to resume it."
+  - All features in current phase are done but phase not verified
+      → "All Phase [N] features are done but not verified. Run /gsr:verify to verify the phase."
+  - Phase is PASS, next phase not started
+      → "Phase [N] passed. Run /gsr:build to start Phase [N+1]: [phase name]."
+  - All phases PASS
+      → "All phases complete. Run /gsr:verify to do backlog triage and wrap up."
+```
+
+Never say "run /gsr:build" without telling the user which phase and what feature to pick next.
 
 ---
 

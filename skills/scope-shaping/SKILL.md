@@ -107,7 +107,17 @@ For research areas that are blocking scope: dispatch researcher agents and integ
 
 ### Step 7: Final Review (Two-Pass Rule)
 
-Review the full scope document. The user reviews too. Scope is done when neither finds meaningful issues in two consecutive passes.
+Claude reviews first, then the user reviews. Scope is done when neither finds meaningful issues in two consecutive passes.
+
+**Claude's review checklist (run before presenting to user):**
+- Do all MVP features have the data they need in the data model?
+- Does any v2 backlog item get silently required by an MVP feature? (backlog ≠ truly deferred)
+- Are all optional fields handled — does every feature that depends on an optional field define its behavior when that field is absent?
+- Does the navigation/screen list match the feature list — no orphaned screens, no features without a home?
+- Are there contradictions between sections (e.g. a feature described as simple in Step 3 but with complex edge cases added in Step 5)?
+- Are all ⚠️ flagged assumptions triaged? None left hanging as "unclear."
+
+Surface any issues found before asking the user to review.
 
 ---
 
@@ -175,6 +185,7 @@ In Step 6, sweep all flags and triage them (blocking scope / blocking PRD / bloc
 - Claude drives ~70% through structure and questions, user drives ~30% through corrections
 - User's strongest contribution: domain expertise and corrections
 - Claude's strongest contribution: structure, edge cases, "what happens when X is empty/missing"
+- **Multi-option decisions use the decision gate pattern.** Read `docs/patterns/decision-gate.md`. Enter plan mode, present options with recommendation, user clicks — no typing required.
 
 ---
 

@@ -42,9 +42,22 @@ Read feature statuses from `docs/STATE.md`.
 ## Step 2: Load Feature Context
 
 Once the user picks a feature, read:
-1. `docs/features/<name>.md` — the complete product spec
-2. Project-wide skills from `docs/techstack.md`
-3. Feature-specific skills from the feature file's Skills section
+1. `docs/STATE.md` — check that all prerequisite features for this feature are done
+2. `docs/features/<name>.md` — the complete product spec
+3. Project-wide skills from `docs/techstack.md`
+4. Feature-specific skills from the feature file's Skills section
+
+**Prerequisite check:** Before loading anything else, scan the feature file for dependencies on other features. Cross-reference with STATE.md. If any prerequisite feature is `not started`, `in progress`, or `blocked`: use the decision gate pattern (`docs/patterns/decision-gate.md`). Enter plan mode and present:
+
+**Option 1 — Build [prerequisite] first**
+Safe path. Avoids integration failures mid-build.
+
+**Option 2 — Proceed anyway**
+You accept the risk of hitting integration gaps. Can be unblocked later.
+
+**Recommendation: Option 1** — building on an incomplete dependency typically means rework.
+
+Wait for user to click. Do not proceed silently.
 
 **Load all skills now.** Read each skill's SKILL.md. The feature file's Skills section controls which skills are active — not memory, not habit.
 
@@ -54,12 +67,17 @@ If a skill is listed but not installed: tell the user "This feature needs [skill
 
 ## Step 3: Mode Selection
 
-Ask: "Creative (you review every diff) or systematic (I generate a task list, you approve, I execute)?"
+Use the decision gate pattern (`docs/patterns/decision-gate.md`). Enter plan mode and present:
 
-**Quick guide:**
-- UI, screens, design-sensitive work → Creative
-- Testing, i18n, accessibility, security, refactoring → Systematic
-- Not sure? → Creative (safer default)
+**Option 1 — Creative**
+You review every diff as it's written. Best for UI, screens, design-sensitive work.
+
+**Option 2 — Systematic**
+Claude generates a task list, you approve it, then Claude executes. Best for testing, i18n, accessibility, security, refactoring.
+
+**Recommendation: Creative** if the feature has any UI. Systematic if it's purely backend/infrastructure.
+
+User clicks their choice.
 
 ---
 
@@ -159,7 +177,18 @@ After feature is complete (user approved or all systematic tasks done):
 Update `docs/STATE.md`:
 - Feature status: `in progress` → `done`
 - Last updated: today's date
-- Next action: "Run `/gsr:verify` to verify [feature], or `/gsr:build` for next feature"
+
+**Phase completion check:** After updating, check if this was the last feature in the current phase (all features in the phase are now `done`).
+
+- **If yes — last feature in phase:**
+  ```
+  ✓ All features in [Phase N] are done.
+  Next: run `/gsr:verify` to verify the full phase before moving to Phase [N+1].
+  ```
+  Set `Next action` in STATE.md to: "Run `/gsr:verify` — all Phase [N] features done"
+
+- **If no — more features remain:**
+  Set `Next action` in STATE.md to: "Run `/gsr:build` → pick next feature from Phase [N]"
 
 ---
 
