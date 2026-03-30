@@ -1,13 +1,15 @@
 {
   "name": "gsr",
-  "display_name": "Get Shit Right",
-  "description": "PRD-first, human-in-the-loop workflow for building production apps. From raw idea to verified MVP.",
-  "category": "productivity",
-  "commands": [
-    { "name": "gsr:scope",  "description": "Shape idea or existing materials into structured scope" },
-    { "name": "gsr:prd",    "description": "Generate PRD + feature files + project infrastructure" },
-    { "name": "gsr:build",  "description": "Build a specific feature (creative or systematic mode)" },
-    { "name": "gsr:verify", "description": "Verify a feature or phase against PRD criteria" },
-    { "name": "gsr:learn",  "description": "Index an existing codebase to onboard GSR" }
+  "owner": {
+    "name": "Kacper Majerowicz",
+    "url": "https://github.com/kmajerowicz"
+  },
+  "plugins": [
+    {
+      "name": "gsr",
+      "source": "./",
+      "description": "PRD-first, human-in-the-loop workflow for building production apps. From raw idea to verified MVP.",
+      "version": "0.1.0"
+    }
   ]
 }

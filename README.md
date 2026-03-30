@@ -21,14 +21,16 @@ GSR fixes this with a lightweight workflow: scope your idea, generate a PRD, bui
 ## Install
 
 ```bash
-claude mcp install https://github.com/kmajerowicz/get-shit-right
+claude plugin marketplace add https://github.com/kmajerowicz/get-shit-right
+claude plugin install gsr
 ```
 
 Or clone and install locally:
 
 ```bash
 git clone https://github.com/kmajerowicz/get-shit-right
-claude plugin install ./get-shit-right
+claude plugin marketplace add ./get-shit-right
+claude plugin install gsr
 ```
 
 ---
