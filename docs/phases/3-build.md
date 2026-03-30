@@ -23,6 +23,7 @@
 - Claude always says "done, test it" or "still need X" — never "should work"
 - Before saying done: code compiles, no TS errors, build passes
 - Skills are enforced by the workflow (loaded from feature file), not by Claude remembering a rule
+- Before committing, Claude highlights key review points from the code review checklist (`docs/patterns/code-review.md`) — focusing on integration safety and what the user should manually verify
 
 ### Mini-verification per task
 Before telling the user "done, test it," Claude runs the gate function (see Phase 4) at minimum Tier 1:
@@ -55,7 +56,7 @@ When a bug or unexpected behavior occurs during build, switch to the systematic 
 - Agent reads CLAUDE.md and all accumulated corrections before starting
 - If agent encounters ambiguity requiring product judgment → stops and asks, never decides autonomously
 - Verification is evidence-based: grep results, test output, build status
-- Subagents follow the role separation and status protocol defined in `docs/patterns/subagent-patterns.md`. Each task dispatched to an implementer subagent includes full context handoff. In systematic mode, a reviewer subagent checks each implementer's output before the commit.
+- Subagents follow the role separation and status protocol defined in `docs/patterns/subagent-patterns.md`. Each task dispatched to an implementer subagent includes full context handoff. In systematic mode, a reviewer subagent checks each implementer's output before the commit using the code review checklist (`docs/patterns/code-review.md`) covering spec compliance, integration safety, convention adherence, and regression risk.
 
 ### Mini-verification per task
 As part of each atomic commit cycle, before committing, the agent runs the gate function (see Phase 4) at minimum Tier 1:
