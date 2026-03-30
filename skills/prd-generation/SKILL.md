@@ -14,14 +14,21 @@ This skill runs Phase 1 (PRD generation) + Phase 2 (project init) in one flow.
 
 ---
 
-## Step 0: Read the Inputs
+## Step 0: Detect Mode
 
-Before generating anything, read:
-1. `docs/scope.md` — the product vision and feature list
-2. Any design references the user mentions (Figma URLs, screenshots, design system docs)
-3. Research areas from scope.md marked "blocking PRD" — these must be resolved first
+Before doing anything, check if `docs/PRD.md` already exists.
 
-**Resolve blocking-PRD research areas in parallel** before writing PRD.md. Dispatch researcher agents for independent research questions.
+**If PRD.md exists → Update mode:**
+- Read `docs/PRD.md` and `docs/scope.md`
+- Do NOT re-run research. Research was already done for the existing PRD.
+- Identify what changed: compare scope with what's reflected in the PRD. List the deltas.
+- Update only the sections that need to change. Leave the rest untouched.
+- Skip straight to the self-verification pass (Step 1), then present changes to user.
+
+**If PRD.md does not exist → Full generation mode:**
+- Read `docs/scope.md` and any design references the user mentions
+- Resolve research areas from scope.md marked "blocking PRD" before writing — dispatch researcher agents in parallel for independent research questions
+- Proceed through Step 1 in full
 
 ---
 
