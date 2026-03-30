@@ -117,6 +117,8 @@ Identical to Phase 4 — verify against the feature file's success criteria.
 
 Additional check for Start C: **verify integration with existing features** — does the new feature break anything? Do existing flows still work?
 
+Code review is especially important for Start C. The integration safety dimension of the code review pattern (`docs/patterns/code-review.md`) expands for existing products — checking existing user flows, shared components, data model compatibility, and auth patterns.
+
 ---
 
 ## GSR Grows With the Product

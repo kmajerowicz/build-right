@@ -277,6 +277,24 @@ Flow: Codebase Onboarding → Feature Scope → Feature File → Build → Verif
 
 **Impact:** Resolves backlog item #6 (sweep parallelization). Systematic build mode dispatches subagents for independent tasks. Verification dispatches subagents for independent checks (grep, tests, build, TS errors).
 
+### Decision 31: Code review pattern — spec compliance, integration safety, convention adherence
+
+**What:** A unified code review pattern that works as both a subagent reviewer checklist (systematic mode) and a human review guide (creative mode). Extends D29's reviewer role with a structured review checklist. Particularly valuable for Start C (existing products) where integration risks are highest.
+
+The review covers 4 dimensions:
+1. **Spec compliance** — does the implementation match the feature file?
+2. **Integration safety** — does the new code break existing functionality? (critical for Start C)
+3. **Convention adherence** — does the code follow CLAUDE.md conventions and learned rules?
+4. **Regression risk** — are existing tests still passing? Are there untested interaction points?
+
+Two review modes:
+- **Subagent reviewer** (systematic mode) — dispatched per D29 patterns, uses this checklist automatically
+- **Human review guide** (creative mode) — Claude presents key review points to the user after implementation, before commit
+
+**Why:** D29 defines the reviewer role but only says "check output against spec." Real code review is broader — especially in existing products where the biggest risk isn't "does it match spec" but "does it break something else." This pattern makes review thorough without adding a new command or flow step.
+
+**Impact:** New pattern reference document. Build spec and Start C spec updated with references. No new commands, no flow changes — review is embedded in existing build flow.
+
 ---
 
 ## Phase 4: What's Still Open

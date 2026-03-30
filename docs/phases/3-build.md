@@ -22,6 +22,7 @@
 - Claude always says "done, test it" or "still need X" — never "should work"
 - Before saying done: code compiles, no TS errors, build passes
 - Skills are enforced by the workflow (loaded from feature file), not by Claude remembering a rule
+- Before committing, Claude highlights key review points from the code review checklist (`docs/patterns/code-review.md`) — focusing on integration safety and what the user should manually verify
 
 ---
 
@@ -42,6 +43,7 @@
 - Agent reads CLAUDE.md and all accumulated corrections before starting
 - If agent encounters ambiguity requiring product judgment → stops and asks, never decides autonomously
 - Verification is evidence-based: grep results, test output, build status
+- Reviewer subagent (per D29) follows the code review checklist (`docs/patterns/code-review.md`) covering spec compliance, integration safety, convention adherence, and regression risk
 
 ---
 
