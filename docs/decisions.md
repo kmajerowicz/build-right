@@ -448,6 +448,25 @@ Goal, Vision, Target user, Why, What it does.
 
 ---
 
+### Decision 26: Iron Law enforcement pattern — borrowed from superpowers
+
+This is a META-PATTERN applied across all GSR skills to prevent Claude from rationalizing its way out of critical rules. Inspired by the superpowers plugin's enforcement approach.
+
+**What:** Every critical rule in GSR skills gets three layers of enforcement:
+1. **The Rule** — stated clearly, non-negotiable
+2. **Red Flags table** — thoughts/rationalizations that mean STOP (e.g., "this is too simple to need review" = red flag)
+3. **Common Rationalizations table** — maps excuses to reality (e.g., "I'll come back to it later" → "You won't. Do it now.")
+
+**Why:** GSR already has good rules ("user reviews every diff", "never say should work", "corrections compound"). But Claude can rationalize skipping any rule. Superpowers proved that explicit rationalization tables dramatically reduce rule violations. The pattern costs zero user friction — it's instructions for Claude, invisible to the user.
+
+**How applied:** Each GSR skill (scope-shaping, prd-generation, build, verification, learn) includes enforcement sections for its critical rules. Not every rule needs enforcement — only the ones that Claude is likely to skip under pressure.
+
+**Impact:** No changes to user flow. No new commands. No new artifacts. Skills become more robust internally.
+
+Reference: [patterns/iron-law-enforcement.md](patterns/iron-law-enforcement.md)
+
+---
+
 ## Phase 4: What's Still Open
 
 | # | Topic | Status |
