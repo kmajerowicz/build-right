@@ -484,6 +484,26 @@ Three additions:
 
 **Impact:** Phase 4 spec updated. Phase 3 build spec gains "mini-verification" after each task in both modes. No new commands, no new artifacts, no flow changes.
 
+### Decision 28: Systematic debugging skill — borrowed from superpowers
+
+**What:** New skill for debugging issues during build. Activated on-demand when something breaks — not a mandatory flow step. Based on superpowers' systematic-debugging skill, adapted for GSR's human-in-the-loop philosophy.
+
+4-phase process:
+1. **OBSERVE** — reproduce the bug, read error messages, gather facts. No hypotheses yet.
+2. **HYPOTHESIZE** — form exactly one hypothesis based on observations. Must be falsifiable.
+3. **TEST** — design a test that proves or disproves the hypothesis. Run it. Binary search, not shotgun.
+4. **CONCLUDE** — if confirmed, fix the root cause. If disproved, return to OBSERVE with new data.
+
+Key rules:
+- Never guess-and-check (making random changes hoping something works)
+- Understand WHY the bug exists before writing any fix
+- One change at a time — never combine fix attempts
+- If stuck after 3 hypothesis cycles, step back and re-observe from scratch
+
+**Why:** Debugging is ~30-40% of build time. GSR had no debugging methodology. Without one, Claude falls into "shotgun debugging" — making random changes, losing track of what was tried, and sometimes introducing new bugs. The 4-phase process keeps debugging disciplined and traceable.
+
+**Impact:** New skill reference document. Build spec updated to reference debugging skill. No flow changes — activates only when needed.
+
 ---
 
 ## Phase 4: What's Still Open

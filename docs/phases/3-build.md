@@ -31,6 +31,9 @@ Before telling the user "done, test it," Claude runs the gate function (see Phas
 
 If any check fails, Claude fixes the issue before claiming done. The claim must reference the output: "done, test it — build passes (0 errors), TS clean." Never "done, should work."
 
+### Debugging
+When a bug or unexpected behavior occurs during build, switch to the systematic debugging process (see `docs/patterns/systematic-debugging.md`). Resume normal build flow after the fix is verified.
+
 ---
 
 ## Mode B: Systematic Build (agent-driven with verification)
@@ -58,6 +61,9 @@ As part of each atomic commit cycle, before committing, the agent runs the gate 
 3. Lint if configured — must pass
 
 If any check fails, the agent fixes before committing. Commit messages include evidence: "feat: add i18n for dashboard — build passes, 0 TS errors, 12/12 tests pass."
+
+### Debugging
+When a bug or unexpected behavior occurs during build, switch to the systematic debugging process (see `docs/patterns/systematic-debugging.md`). Resume normal build flow after the fix is verified.
 
 ---
 
