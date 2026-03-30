@@ -13,6 +13,7 @@
 2. System reads the feature file → loads skills listed in the feature's Skills section + project-wide skills from techstack.md → reads relevant SKILL.md files
 3. Claude reads CLAUDE.md (conventions, references, learned rules)
 4. Plan mode if >2 files, direct implementation otherwise
+   - Plans follow the structured format in `docs/patterns/plan-execution.md` — file map first, then task breakdown with checkpoints. User approves the file map before execution begins.
 5. User reviews every diff, tests in browser
 6. User corrects → Claude asks "Add this to CLAUDE.md Learned Rules?"
 7. Atomic commit after user approves
@@ -43,6 +44,7 @@ When a bug or unexpected behavior occurs during build, switch to the systematic 
 ### How
 1. User describes the systematic task
 2. Claude generates task list with pass/fail criteria
+   - Task lists follow the plan execution protocol in `docs/patterns/plan-execution.md` — including file map and checkpoint after each task.
 3. User approves the list (gate — nothing executes without approval)
 4. Claude executes tasks (parallelizable where independent)
 5. Atomic commit per task
