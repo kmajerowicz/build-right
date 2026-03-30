@@ -332,6 +332,231 @@ Three additions:
 
 ---
 
+## Phase 3b: Process Detail Decisions
+
+_Decisions adding process depth to the phase specs — verification structure, feature file sections, build phase requirements._
+
+### Decision 20: Structured verification — Truths / Artifacts / Key Links / Anti-Patterns
+
+**What:** Verification (Phase 4) uses a structured, mechanically checkable format instead of a flat checklist. Four categories:
+
+- **Truths** — Observable behaviors ("user can sign up"). Checked by running commands or reading output.
+- **Artifacts** — Files that must exist with real implementation, not stubs. Checked by file existence, line count, exports.
+- **Key Links** — Connections between components (imports, API calls). Checked by grep.
+- **Anti-Patterns** — Stubs, TODOs, hardcoded values, mock data in production code. Checked by grep sweep.
+
+Plus a **verification ladder** — try the strongest automated check first: Static → Command → Behavioral → Human (only when Claude can't verify itself).
+
+Must-haves (Truths/Artifacts/Key Links) are defined at spec time in feature files and PRD build phases, then checked at verification time in Phase 4. Same structure, defined once, verified once.
+
+**Why:** GSR's original Phase 4 was "grep + manual checks" without structure. It didn't catch stubs (file exists but is placeholder), broken wiring (components exist but aren't connected), or anti-patterns (console.log replacing real functionality). The verification ladder also reduces unnecessary human checks — Claude tries automated verification first.
+
+**Source:** Adapted from GSD 2's must-haves verification model (Truths/Artifacts/Key Links format + verification ladder + anti-pattern sweep). Adapted to GSR by: keeping must-haves at product level in feature files (no file paths or line counts in specs), checking implementation details only during verification.
+
+**Impact:** Changes Phase 1 (feature files get Must-haves section), Phase 4 (structured report format + verification ladder + anti-pattern sweep), architecture.md (feature file description updated).
+
+### Decision 21: "Don't Hand-Roll" sweep + Known Pitfalls
+
+**What:** During scope shaping (Phase 0, Step 2) and PRD generation (Phase 1), the system proactively identifies:
+
+1. **Don't Hand-Roll** — For each technical need in a feature (auth, payments, email, etc.), check if a proven library/service already solves it. Results go into the feature file as a table: Need | Don't Build | Use Instead | Why.
+
+2. **Known Pitfalls** — For features involving complex/risky technical territory, surface common mistakes: what goes wrong, why, how to avoid, warning signs.
+
+Both are optional sections in feature files — only included when relevant.
+
+**Why:** Prevents the most expensive mistakes: (1) building something that exists as a mature solution, and (2) falling into known traps. Particularly valuable for the target user "PM / non-developer" who doesn't know what's available in the ecosystem. Complements skills matching — skills are tools for Claude, don't-hand-roll is tools for the code.
+
+**Source:** Adapted from GSD 2's research template ("Don't Hand-Roll" table + "Common Pitfalls" sections). Adapted to GSR by: moving from a separate research artifact into feature files (no new files), making both sections optional, running the sweep in parallel with competitive mapping and skills matching.
+
+**Impact:** Changes Phase 0 (Step 2 expanded, Step 5 pitfalls added), Phase 1 (feature files get Don't Hand-Roll + Known Pitfalls sections).
+
+### Decision 22: Demo sentence per build phase
+
+**What:** Every build phase in the PRD must have a **demo sentence** — one line stating what the user can see or do after this phase completes.
+
+```
+**Demo:** User can start a walk, see it tracked in real-time, and view stats on the dashboard.
+```
+
+If you can't write a demo sentence, the phase is too abstract and should be restructured.
+
+The demo sentence becomes the first human verification item in Phase 4 ("open app, verify: [demo sentence]").
+
+**Why:** Build phases had "success criteria" — technically correct but not user-facing. A PM/user understands "after this phase I can log in and see my dashboard" better than "auth service exports generateToken, verifyToken." Forces phases to deliver user-visible progress. Also serves as a sanity check: phases that can't be demoed are probably scoped wrong.
+
+**Source:** Adapted from GSD 2's "demo sentence" per slice (`> After this: what the user can demo when this slice is done`). Adapted to GSR by: adding to PRD build phases (not a separate artifact), connecting to Phase 4 as the first human verification item.
+
+**Impact:** Changes Phase 1 (build phases require Demo field), Phase 4 (demo sentence is first human check).
+
+### Decision 24: Start B — how quality is evaluated and what triggers improve vs proceed (details for Decision 17)
+
+**What:** Start B assesses materials on two dimensions — not document quality, but information completeness:
+
+**1. Project foundations** (same 5 from Start A Step 1):
+Goal, Vision, Target user, Why, What it does.
+
+**2. Feature clarity** — can we list the product's features and roughly understand what each does? Not detailed specs (that's PRD generation), just enough to know what exists. Features map to functional and non-functional requirements — if client materials describe screens, Claude extracts the underlying features from them.
+
+**Assessment mechanism:** After mapping materials (Step 2), Claude produces a structured assessment table:
+- Each foundation: `✓ clear` (with evidence from materials) or `⚠️ unclear` (with what's missing)
+- Each feature: source, and whether it's ready for PRD generation
+- Verdict: PROCEED or IMPROVE (with specific gaps listed)
+
+**Proceed when:**
+- All 5 foundations are clear
+- Feature list is known with enough context for PRD generation
+
+**Improve when:**
+- Any foundation is missing or ambiguous
+- Can't list the features
+- Materials contradict each other (contradictions = gap)
+
+**Deferred foundations — queue, don't block:**
+- If user doesn't answer a foundation question, Claude marks it `⚠️ unclear`, suggests its best answer, and continues working
+- As Claude gathers more context (feature deep-dives, mapping), it returns to unclear items with informed suggestions: "Based on what you described about X, I think the target user is Y — correct?"
+- **Hard gate before PRD generation:** all 5 foundations must be `✓ clear`. If anything remains `⚠️ unclear`, Claude returns to it with a suggestion grounded in the context gathered so far
+
+**Improve path is targeted:**
+- Enters Start A steps 4-7 but only for identified gaps — doesn't restart scope shaping from scratch
+- Foundations are resolved conversationally (they're decisions)
+- Features are resolved document-based (Claude drafts from materials, user corrects)
+
+**Assessment is adaptive:**
+- Doesn't check for things the project doesn't need (no i18n check for single-market tool, no PWA check for desktop app)
+- Checks information, not format — works for client briefs, Figma files, meeting notes, partial specs, or existing codebases
+
+**Why:** Decision 17 (`/gsr:learn` as Start B entry) defined the mechanism but not the assessment criteria. This adds: (1) what "quality" means (foundations + feature clarity), (2) the proceed/improve threshold, (3) the deferred foundations pattern (queue gaps, don't block, hard gate before PRD).
+
+**Impact:** Changes Phase 0 (Start B steps 2-4 get structured assessment format + deferred foundations pattern).
+
+### Decision 25: Sweep parallelization — worktree isolation + file partitioning (details for Decision 18)
+
+**What:** Parallel agents in systematic mode (Mode B) are coordinated through two layers: (1) git worktrees for hard isolation — each agent works in its own worktree, (2) file-level partitioning as the coordination strategy to minimize merge conflicts. Partitioning is enforced at task assignment time.
+
+**Three-phase execution:**
+
+**Phase 1 — Parallel (agents in worktrees):** Each agent spawns in its own git worktree and gets a sweep brief (CLAUDE.md content, relevant feature file, explicit constraints). File partitioning tells agents which files are theirs — worktrees ensure that even if an agent touches an unexpected file, it can't corrupt another agent's work.
+
+**Phase 2 — Sequential merge:** Worktrees are merged back one at a time (not all-at-once). Sequential merge makes conflicts easy to spot and resolve. If file partitioning held, merges are clean.
+
+**Phase 3 — Wiring (single Claude):** After all worktrees are merged, one pass handles:
+- Shared files (indexes, configs, wiring imports)
+- Consistency check (same conventions across all agent output)
+- Atomic commits for the wiring
+
+**Small sweep shortcut:** For ≤2 agents on a handful of files, worktrees are overhead. Use shared filesystem with file partitioning only. Worktrees kick in at ≥3 agents or when the sweep touches ≥10 files.
+
+**Sweep brief:** Snapshot of shared context given to every agent:
+- CLAUDE.md conventions + learned rules
+- Relevant feature file(s)
+- Explicit constraints for the sweep (e.g., "translate to Polish, formal 'Pan/Pani', keys in camelCase")
+- Task assignment with file boundaries
+
+**Parallelization heuristic:** If you can draw a task → file mapping where no file appears twice → parallelize. If not → sequential.
+
+**Parallelize:**
+- i18n (per screen — each screen's files are independent)
+- Testing (per feature — each test file is independent)
+- Accessibility audit (per component)
+- Security headers (per route)
+
+**Don't parallelize:**
+- Refactoring (changes cascade across files)
+- Shared state changes (same reducer, same store)
+- Cross-file dependencies (agent A creates util, agent B needs it)
+
+**Why:** Decision 18 resolved the "what mechanism" (subagents, not agentic teams). This resolves the "how exactly" — worktrees for isolation safety (feedback from CR), file partitioning for conflict avoidance, and when NOT to parallelize.
+
+**Impact:** Changes Phase 3 (systematic build parallelization section updated with three-phase execution model + worktree isolation + partitioning heuristic).
+
+---
+
+### Decision 26: Iron Law enforcement pattern — borrowed from superpowers
+
+This is a META-PATTERN applied across all GSR skills to prevent Claude from rationalizing its way out of critical rules. Inspired by the superpowers plugin's enforcement approach.
+
+**What:** Every critical rule in GSR skills gets three layers of enforcement:
+1. **The Rule** — stated clearly, non-negotiable
+2. **Red Flags table** — thoughts/rationalizations that mean STOP (e.g., "this is too simple to need review" = red flag)
+3. **Common Rationalizations table** — maps excuses to reality (e.g., "I'll come back to it later" → "You won't. Do it now.")
+
+**Why:** GSR already has good rules ("user reviews every diff", "never say should work", "corrections compound"). But Claude can rationalize skipping any rule. Superpowers proved that explicit rationalization tables dramatically reduce rule violations. The pattern costs zero user friction — it's instructions for Claude, invisible to the user.
+
+**How applied:** Each GSR skill (scope-shaping, prd-generation, build, verification, learn) includes enforcement sections for its critical rules. Not every rule needs enforcement — only the ones that Claude is likely to skip under pressure.
+
+**Impact:** No changes to user flow. No new commands. No new artifacts. Skills become more robust internally.
+
+Reference: [patterns/iron-law-enforcement.md](patterns/iron-law-enforcement.md)
+
+### Decision 27: Enhanced verification — gate function and evidence protocol
+
+**What:** Strengthens Phase 4 verification and adds verification discipline to Phase 3 build. Inspired by superpowers' "verification-before-completion" skill.
+
+Three additions:
+1. **Gate function** — 5-step protocol before ANY completion claim: IDENTIFY the command that proves it → RUN the command → READ the output → VERIFY it confirms the claim → THEN (and only then) claim done. Applied in both build and verify phases.
+2. **Banned words** — Claude cannot use "should work", "probably works", "seems correct", "looks good" in completion claims. Must use evidence: "build passes (0 errors)", "grep confirms no hardcoded strings", "test suite: 12/12 pass".
+3. **Verification ladder** — 4 tiers of evidence, from cheapest to most expensive:
+   - Tier 1: AUTOMATED (build, TypeScript, lint — machine says pass/fail)
+   - Tier 2: GREP (pattern search — anti-patterns absent, expected patterns present)
+   - Tier 3: TEST (test suite execution — pass/fail with output)
+   - Tier 4: HUMAN (manual check — "open /dashboard, verify cards render")
+
+   Always exhaust lower tiers before asking human. Never ask human to check something a grep could answer.
+
+**Why:** GSR Phase 4 was ~40 lines and high-level. Real verification needs mechanical discipline — the same task done the same way every time. The gate function prevents premature "done" claims. The banned words prevent weasel language. The ladder prevents wasting human time on things machines can check.
+
+**Impact:** Phase 4 spec updated. Phase 3 build spec gains "mini-verification" after each task in both modes. No new commands, no new artifacts, no flow changes.
+
+### Decision 28: Systematic debugging skill — borrowed from superpowers
+
+**What:** New skill for debugging issues during build. Activated on-demand when something breaks — not a mandatory flow step. Based on superpowers' systematic-debugging skill, adapted for GSR's human-in-the-loop philosophy.
+
+4-phase process:
+1. **OBSERVE** — reproduce the bug, read error messages, gather facts. No hypotheses yet.
+2. **HYPOTHESIZE** — form exactly one hypothesis based on observations. Must be falsifiable.
+3. **TEST** — design a test that proves or disproves the hypothesis. Run it. Binary search, not shotgun.
+4. **CONCLUDE** — if confirmed, fix the root cause. If disproved, return to OBSERVE with new data.
+
+Key rules:
+- Never guess-and-check (making random changes hoping something works)
+- Understand WHY the bug exists before writing any fix
+- One change at a time — never combine fix attempts
+- If stuck after 3 hypothesis cycles, step back and re-observe from scratch
+
+**Why:** Debugging is ~30-40% of build time. GSR had no debugging methodology. Without one, Claude falls into "shotgun debugging" — making random changes, losing track of what was tried, and sometimes introducing new bugs. The 4-phase process keeps debugging disciplined and traceable.
+
+**Impact:** New skill reference document. Build spec updated to reference debugging skill. No flow changes — activates only when needed.
+
+### Decision 29: Subagent patterns — role separation and status protocol
+
+**What:** Detailed operational patterns for subagent dispatch in GSR. Completes Decision 18 (subagents for parallelism) with concrete roles, handoff protocol, and status reporting. Inspired by superpowers' subagent-driven-development skill.
+
+Three patterns:
+
+1. **Role separation** — subagents have defined roles:
+   - **Implementer** — fresh context, does the work, reports status
+   - **Reviewer** — checks implementer's work against spec (systematic mode only)
+   - **Researcher** — gathers information, returns findings (scope/PRD phases)
+
+2. **Status protocol** — every subagent reports one of exactly 4 statuses:
+   - `DONE` — task complete, all checks pass
+   - `DONE_WITH_CONCERNS` — task complete but flagging potential issues for controller
+   - `NEEDS_CONTEXT` — blocked on missing information, returns specific questions
+   - `BLOCKED` — cannot proceed, explains why
+
+3. **Context handoff** — controller provides to subagent:
+   - Full task description (subagent never reads plan file itself)
+   - Relevant CLAUDE.md content (conventions, learned rules)
+   - Relevant feature file content (if build task)
+   - Specific success criteria for this task
+
+**Why:** Decision 18 said "subagents, not agentic teams" but left operational details open. Without defined roles and statuses, subagent dispatch becomes ad-hoc — inconsistent handoffs, ambiguous completion claims, no escalation path for blockers. The 4-status protocol makes every outcome explicit.
+
+**Impact:** New patterns reference document (`docs/patterns/subagent-patterns.md`). Build spec and verification spec updated to reference subagent patterns. No flow changes — patterns are internal to how skills dispatch work.
+
+---
+
 ## Phase 4: What's Still Open
 
 | # | Topic | Status |
@@ -345,12 +570,13 @@ Three additions:
 | Document | What it is | Status |
 |----------|-----------|--------|
 | [vision.md](vision.md) | What GSR is, principles, phase overview | Complete — updated for plugin decisions |
-| [phases/0-scope-shaping.md](phases/0-scope-shaping.md) | Phase 0 spec | Complete |
-| [phases/1-prd-generation.md](phases/1-prd-generation.md) | Phase 1 spec | Complete |
+| [phases/0-scope-shaping.md](phases/0-scope-shaping.md) | Phase 0 spec | Complete (updated: don't-hand-roll in Step 2, pitfalls in Step 5) |
+| [phases/1-prd-generation.md](phases/1-prd-generation.md) | Phase 1 spec | Complete (updated: must-haves, demo sentence, don't-hand-roll, pitfalls) |
 | [phases/2-project-init.md](phases/2-project-init.md) | Phase 2 spec (merged into Phase 1 — Decision 15) | Complete |
 | [phases/3-build.md](phases/3-build.md) | Phase 3 spec | Complete — updated for per-feature build |
 | [phases/4-verification.md](phases/4-verification.md) | Phase 4 spec | Complete — updated for per-feature verification |
 | [architecture.md](architecture.md) | How GSR projects are structured | Complete — updated for per-feature STATE.md |
 | [research/analysis.md](research/analysis.md) | Kacper's approach vs GSD comparison | Complete |
 | [plans/2026-03-15-gsr-plugin-design.md](plans/2026-03-15-gsr-plugin-design.md) | Plugin architecture design | Complete |
+| [patterns/subagent-patterns.md](patterns/subagent-patterns.md) | Subagent roles, status protocol, context handoff | Complete |
 | [decisions.md](decisions.md) | This file — decisions made, what's next | Living document |

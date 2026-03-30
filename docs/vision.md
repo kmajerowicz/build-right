@@ -89,6 +89,7 @@ See [Plugin Design](plans/2026-03-15-gsr-plugin-design.md) for full architecture
 8. **Docs for product, code for implementation.** Documents describe what and why. Code describes how. Docs reference code, never duplicate it.
 9. **Skills are boosters, not blockers.** Matched from marketplace per feature, loaded by workflow automatically. System works without them.
 10. **Explain every choice.** The user may or may not be technical. May or may not be product-experienced. When presenting a decision, always explain: what are the options, what's the impact from a product perspective (UX, scope, timeline), and what's the impact from a technical perspective (complexity, maintainability, risk). Never assume the user knows — empower them to decide with full context.
+11. **Enforce, don't hope.** Critical rules include Red Flags and Common Rationalizations tables — preventing Claude from rationalizing its way past them. Borrowed from superpowers.
 
 ---
 

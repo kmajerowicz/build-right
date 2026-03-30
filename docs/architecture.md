@@ -15,7 +15,7 @@ Documents and code serve different audiences and different purposes. When they o
 | Entity relationships (conceptual) | Table schemas, column types, migrations |
 | Feature states (empty, error, loading) | Component logic |
 | Design decisions and rationale | CSS, design tokens |
-| Success criteria | Test cases |
+| Must-haves (truths, artifacts, key links) | Test cases |
 
 **Documents describe what and why. Code describes how.** Documents reference code for implementation details — they don't duplicate it.
 
@@ -88,7 +88,7 @@ project-root/
 │   │                           # High-level architecture (system diagram, not implementation)
 │   │                           # Conceptual data model (entities + relationships, not schemas)
 │   │                           # Feature index → points to features/*.md
-│   │                           # Build phases, success criteria
+│   │                           # Build phases (demo sentence + must-haves)
 │   │
 │   ├── scope.md                # Original vision document (from Phase 0)
 │   │                           # Historical reference after PRD is generated
@@ -149,7 +149,7 @@ The "map" of the product — what we're building, for whom, why, and how it work
 7. Feature index (table with links to `features/*.md`)
 8. Non-functional requirements (performance targets, accessibility level)
 9. Design direction (inspiration, color palette, mobile-first — NOT design tokens)
-10. Build phases (ordered, typed creative/systematic, success criteria)
+10. Build phases (ordered, typed creative/systematic, demo sentence, must-haves)
 11. Research areas status
 
 **Does NOT contain:**
@@ -172,6 +172,9 @@ One file per feature or screen. Everything a dev (human or AI) needs to understa
 - Business rules and edge cases ("goals are optional — when not set, streak is inactive")
 - Data needs at conceptual level ("needs user's weekly goal and this week's tracked km")
 - UX description (layout intent, key interactions — not component names)
+- **Must-haves** — Truths (observable behaviors), Artifacts (files that must exist with real implementation), Key Links (critical connections between parts). Defined at spec time, checked at verification time.
+- **Don't Hand-Roll** (if relevant — proven libraries/services to use instead of building from scratch)
+- **Known Pitfalls** (if relevant — common mistakes for this type of feature, with warning signs)
 - **Skills** (which skills to load when implementing this feature — matched from skills.sh marketplace during PRD generation)
 - Decision log (choices made during scope/PRD, with rationale)
 - Related features (links to other feature files that interact)
@@ -201,15 +204,14 @@ Skills are **boosters, not blockers** — the system works without them. Niche t
 
 ### docs/STATE.md (progress tracker)
 
-Lightweight digest. Auto-updated after each task. Two granularity levels: phases and features.
+Lightweight digest. Auto-updated after each task.
 
 **Contains:**
-- Current focus (phase + feature + status)
-- Phase progress table (# | Phase | Status)
-- Feature progress table per active phase (Feature | Status | Mode | Tasks done/total)
+- Current focus (phase + status)
+- Phase progress table (# | Phase | Type | Status | Tasks done/total)
 - Recent decisions (date + what + which file updated)
 - Deferred items (captured during build)
-- Verification records (appended per feature and per phase)
+- Phase verification records (appended when phases complete)
 - Last session / next action
 
 **Size:** ~30 lines. Never exceeds 50.
