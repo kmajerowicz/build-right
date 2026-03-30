@@ -107,13 +107,57 @@ process.stdin.on('end', () => {
       }
     }
 
+    // ── Update available check ─────────────────────────────────────────
+    // Checks once per day by caching result in /tmp. Never blocks output.
+    let updateBadge = '';
+    try {
+      const claudeDir = process.env.CLAUDE_CONFIG_DIR || path.join(os.homedir(), '.claude');
+      const installedPluginJson = path.join(claudeDir, 'plugins', 'marketplaces', 'gsr', '.claude-plugin', 'plugin.json');
+      const cachePath = path.join(os.tmpdir(), 'gsr-update-check.json');
+      const DAY_SECONDS = 86400;
+      const now = Math.floor(Date.now() / 1000);
+
+      let cache = null;
+      if (fs.existsSync(cachePath)) {
+        try { cache = JSON.parse(fs.readFileSync(cachePath, 'utf8')); } catch (e) { /* reset */ }
+      }
+
+      if (!cache || (now - (cache.timestamp || 0)) > DAY_SECONDS) {
+        // Fetch latest version from GitHub (async, fire-and-forget via child_process)
+        const { execFile } = require('child_process');
+        execFile('node', ['-e', `
+          const https = require('https');
+          const fs = require('fs');
+          const cachePath = ${JSON.stringify(cachePath)};
+          const installedPath = ${JSON.stringify(installedPluginJson)};
+          let installed = '0.0.0';
+          try { installed = JSON.parse(fs.readFileSync(installedPath, 'utf8')).version || '0.0.0'; } catch(e) {}
+          https.get('https://raw.githubusercontent.com/kmajerowicz/get-shit-right/main/.claude-plugin/plugin.json', res => {
+            let d = '';
+            res.on('data', c => d += c);
+            res.on('end', () => {
+              try {
+                const latest = JSON.parse(d).version || '0.0.0';
+                fs.writeFileSync(cachePath, JSON.stringify({ timestamp: Math.floor(Date.now()/1000), installed, latest, updateAvailable: latest !== installed }));
+              } catch(e) {}
+            });
+          }).on('error', () => {});
+        `], { timeout: 5000 }, () => {});
+        // Use stale cache value this render (fresh check will show next time)
+      }
+
+      if (cache?.updateAvailable) {
+        updateBadge = ' \x1b[33m⬆ /gsr:update\x1b[0m';
+      }
+    } catch (e) { /* silent */ }
+
     // ── Output ─────────────────────────────────────────────────────────
     const dirname = path.basename(dir);
     const parts = [`\x1b[2m${model}\x1b[0m`];
     if (focus) parts.push(`\x1b[1m${focus}\x1b[0m`);
     parts.push(`\x1b[2m${dirname}\x1b[0m`);
 
-    process.stdout.write(parts.join(' \x1b[2m\u2502\x1b[0m ') + ctx);
+    process.stdout.write(parts.join(' \x1b[2m\u2502\x1b[0m ') + ctx + updateBadge);
   } catch (e) {
     // Silent fail
   }

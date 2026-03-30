@@ -35,7 +35,7 @@ claude plugin install gsr
 
 ---
 
-## 5 Commands
+## Commands
 
 | Command | What it does |
 |---------|-------------|
@@ -44,6 +44,7 @@ claude plugin install gsr
 | `/gsr:build` | Build a specific feature — creative (you review every diff) or systematic (agent-driven) |
 | `/gsr:verify` | Verify a feature or phase with evidence — build passes, grep results, human checks |
 | `/gsr:learn` | Index an existing codebase, populate CLAUDE.md, and get told what to do next |
+| `/gsr:update` | Update GSR to the latest version and reinstall hooks |
 
 Each command tells you what to run next. Context clears between commands — state lives in files.
 
@@ -136,17 +137,25 @@ Documents describe **what and why**. Code describes **how**. No duplication, no 
 
 ---
 
-## Hooks (Optional)
+## Hooks
 
-GSR includes two terminal hooks for a better Claude Code experience:
+GSR includes two terminal hooks that install automatically on first session start:
 
-```bash
-node hooks/install.js
-```
-
-**Status line** — shows current phase, project name, and context usage at the bottom of Claude Code.
+**Status line** — shows model, current focus, project name, context usage bar, and an update badge when a new version is available.
 
 **Context monitor** — warns Claude (not you) when context is running low, so it finishes the current task cleanly before running out.
+
+To install manually:
+
+```bash
+node ~/.claude/plugins/marketplaces/gsr/hooks/install.js
+```
+
+Restart Claude Code after installing.
+
+## Updates
+
+When a new version of GSR is available, the status line shows `⬆ /gsr:update`. Run that command to pull the latest version and reinstall hooks.
 
 ---
 
