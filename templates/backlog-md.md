@@ -6,8 +6,7 @@ Items explicitly deferred during scope, PRD generation, or build — plus feedba
 
 ## Feedback
 
-| Title | Type | Area | Description | Date |
-|-------|------|------|-------------|------|
+<!-- Entries added via /gsr:feedback -->
 
 ---
 
