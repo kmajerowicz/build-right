@@ -27,6 +27,29 @@ When a feature scope is confirmed during PRD generation:
 
 ---
 
+## "Don't Hand-Roll" Sweep Per Feature
+
+When a feature scope is confirmed, before writing the feature file:
+
+1. Claude identifies the feature's technical needs (auth, payments, email, file upload, real-time, etc.)
+2. For each need, checks: does a proven library/service solve this? (parallel with skills matching)
+3. Adds a **Don't Hand-Roll** section to the feature file if relevant
+
+This prevents the most expensive mistake: building something that already exists as a mature, tested solution.
+
+```markdown
+## Don't Hand-Roll
+| Need | Don't Build | Use Instead | Why |
+|------|-------------|-------------|-----|
+| Auth | Custom JWT session mgmt | next-auth / lucia | OAuth, session security, edge cases handled |
+| Email | SMTP client | Resend / Postmark | Deliverability, templates, rate limiting |
+| Validation | Manual if/else checks | Zod | Type inference, composable, already in ecosystem |
+```
+
+If no relevant items → section omitted (not every feature needs it).
+
+---
+
 ## PRD.md Structure (~200-300 lines, pure product knowledge)
 
 1. Project summary (what, for whom, why)
@@ -38,7 +61,7 @@ When a feature scope is confirmed during PRD generation:
 7. Feature index (table with links to `features/*.md`)
 8. Non-functional requirements (performance targets, accessibility level)
 9. Design direction (inspiration, color palette, mobile-first — NOT design tokens)
-10. Build phases (ordered, typed creative/systematic, success criteria)
+10. Build phases (ordered, typed creative/systematic, demo sentence, must-haves)
 11. Research areas status
 
 **Does NOT contain:** Tech stack, table schemas, routes, endpoints, design tokens, code conventions. Those live in CLAUDE.md (pointers + conventions) or in code.
@@ -54,11 +77,57 @@ When a feature scope is confirmed during PRD generation:
 - Business rules and edge cases
 - Data needs at conceptual level ("needs user's weekly goal and this week's tracked km")
 - UX description (layout intent, key interactions)
+- **Must-haves** (Truths, Artifacts, Key Links — what verification will check, see below)
+- **Don't Hand-Roll** (if relevant — proven solutions to use instead of building from scratch)
+- **Known Pitfalls** (if relevant — common mistakes for this type of feature)
 - **Skills** (which skills to load when implementing — matched from marketplace)
 - Decision log (choices + rationale)
 - Related features (links to other feature files)
 
 **Does NOT contain:** Component names, CSS classes, API call details, schema field names. Those are code.
+
+### Must-Haves in Feature Files
+
+Defined at spec time, checked at verification time. Three categories:
+
+**Truths** — Observable behaviors that must be true when the feature works:
+```markdown
+### Truths
+- User can create a new walk with start/stop tracking
+- Dashboard shows this week's stats even with zero walks
+- Goal progress is hidden when no goals are set
+```
+
+**Artifacts** — Files that must exist with real implementation (not stubs):
+```markdown
+### Artifacts
+- Walk tracking service with start/stop/pause exports
+- Dashboard data fetching with empty state handling
+```
+
+**Key Links** — Critical connections between parts:
+```markdown
+### Key Links
+- Dashboard fetches from walk tracking service
+- Goal progress component reads user's weekly goal setting
+```
+
+Must-haves stay at the product level — no file paths, no line counts. Those details emerge during build and are checked during verification. The feature file defines WHAT must be true, verification checks that it IS true.
+
+### Known Pitfalls in Feature Files
+
+Common mistakes for this type of feature, surfaced during research:
+
+```markdown
+## Known Pitfalls
+
+### Race condition in concurrent location updates
+**What goes wrong:** Two location updates arrive out of order, GPS drift creates phantom distance
+**How to avoid:** Timestamp-based ordering, distance threshold filtering
+**Warning signs:** Walks showing impossibly high speed or distance
+```
+
+If no relevant pitfalls → section omitted.
 
 ---
 
@@ -67,9 +136,28 @@ When a feature scope is confirmed during PRD generation:
 Each phase includes:
 - Scope boundary (what's in, what's not)
 - Type: `creative` (human-in-the-loop) or `systematic` (agent-drivable)
-- Success criteria (how to verify it's done)
+- **Demo:** one sentence — what the user can see or do after this phase (required)
+- **Must-haves:** Truths, Artifacts, Key Links that verification will check
 - Research dependencies (if any blocking-build research must happen first)
 - Suggested task breakdown (refined during build)
+
+### Demo Sentence
+
+Every build phase must have a demo sentence. One line, forcing the question: "after this phase, what can the user actually see or do?"
+
+```markdown
+### Phase 2: Dashboard + Walk Tracking
+**Type:** creative
+**Demo:** User can start a walk, see it tracked in real-time, and view stats on the dashboard.
+**Must-haves:**
+- Truths: walk tracking works with start/stop, dashboard renders with real data
+- Artifacts: tracking service, dashboard page, stats API
+- Key Links: dashboard reads from tracking service via API
+```
+
+If you can't write a demo sentence, the phase is too abstract — it should be restructured so each phase ends with something demonstrable.
+
+The demo sentence becomes the first human verification item in Phase 4.
 
 ---
 

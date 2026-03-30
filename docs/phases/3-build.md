@@ -13,6 +13,7 @@
 2. System reads the feature file → loads skills listed in the feature's Skills section + project-wide skills from techstack.md → reads relevant SKILL.md files
 3. Claude reads CLAUDE.md (conventions, references, learned rules)
 4. Plan mode if >2 files, direct implementation otherwise
+   - Plans follow the structured format in `docs/patterns/plan-execution.md` — file map first, then task breakdown with checkpoints. User approves the file map before execution begins.
 5. User reviews every diff, tests in browser
 6. User corrects → Claude asks "Add this to CLAUDE.md Learned Rules?"
 7. Atomic commit after user approves
@@ -24,6 +25,17 @@
 - Skills are enforced by the workflow (loaded from feature file), not by Claude remembering a rule
 - Before committing, Claude highlights key review points from the code review checklist (`docs/patterns/code-review.md`) — focusing on integration safety and what the user should manually verify
 
+### Mini-verification per task
+Before telling the user "done, test it," Claude runs the gate function (see Phase 4) at minimum Tier 1:
+1. `npm run build` (or equivalent) — must pass with 0 errors
+2. `npx tsc --noEmit` — must report 0 TypeScript errors
+3. Lint if configured — must pass
+
+If any check fails, Claude fixes the issue before claiming done. The claim must reference the output: "done, test it — build passes (0 errors), TS clean." Never "done, should work."
+
+### Debugging
+When a bug or unexpected behavior occurs during build, switch to the systematic debugging process (see `docs/patterns/systematic-debugging.md`). Resume normal build flow after the fix is verified.
+
 ---
 
 ## Mode B: Systematic Build (agent-driven with verification)
@@ -33,6 +45,7 @@
 ### How
 1. User describes the systematic task
 2. Claude generates task list with pass/fail criteria
+   - Task lists follow the plan execution protocol in `docs/patterns/plan-execution.md` — including file map and checkpoint after each task.
 3. User approves the list (gate — nothing executes without approval)
 4. Claude executes tasks (parallelizable where independent)
 5. Atomic commit per task
@@ -43,7 +56,18 @@
 - Agent reads CLAUDE.md and all accumulated corrections before starting
 - If agent encounters ambiguity requiring product judgment → stops and asks, never decides autonomously
 - Verification is evidence-based: grep results, test output, build status
-- Reviewer subagent (per D29) follows the code review checklist (`docs/patterns/code-review.md`) covering spec compliance, integration safety, convention adherence, and regression risk
+- Subagents follow the role separation and status protocol defined in `docs/patterns/subagent-patterns.md`. Each task dispatched to an implementer subagent includes full context handoff. In systematic mode, a reviewer subagent checks each implementer's output before the commit using the code review checklist (`docs/patterns/code-review.md`) covering spec compliance, integration safety, convention adherence, and regression risk.
+
+### Mini-verification per task
+As part of each atomic commit cycle, before committing, the agent runs the gate function (see Phase 4) at minimum Tier 1:
+1. `npm run build` — must pass with 0 errors
+2. `npx tsc --noEmit` — must report 0 TypeScript errors
+3. Lint if configured — must pass
+
+If any check fails, the agent fixes before committing. Commit messages include evidence: "feat: add i18n for dashboard — build passes, 0 TS errors, 12/12 tests pass."
+
+### Debugging
+When a bug or unexpected behavior occurs during build, switch to the systematic debugging process (see `docs/patterns/systematic-debugging.md`). Resume normal build flow after the fix is verified.
 
 ---
 
@@ -68,7 +92,7 @@ If it has clear pass/fail criteria and no design judgment → systematic (Mode B
 
 ## Parallelization
 
-Independent systematic tasks can run in parallel via multiple agents. All parallel agents share the same CLAUDE.md context — they run concurrently but with the same instruction manual and accumulated corrections.
+Independent systematic tasks can run in parallel via multiple agents. All parallel agents share the same CLAUDE.md context — they run concurrently but with the same instruction manual and accumulated corrections. Parallel subagents follow the dispatch patterns in `docs/patterns/subagent-patterns.md`. Each gets independent context — no shared state between parallel agents except CLAUDE.md conventions.
 
 Specific parallelization opportunities:
 - Independent systematic tasks in sweep mode

@@ -93,6 +93,9 @@ Create `docs/features/<feature-name>.md` — same format as Phase 1 feature file
 - Business rules and edge cases
 - Data needs at conceptual level
 - UX description (layout intent, key interactions)
+- **Must-haves** (Truths, Artifacts, Key Links — same as Phase 1 feature files)
+- **Don't Hand-Roll** (if relevant — proven solutions to use instead of building)
+- **Known Pitfalls** (if relevant — common mistakes for this type of feature)
 - **Skills** (matched from skills.sh marketplace)
 - Decision log (choices + rationale)
 - **Integration points** — how this feature connects to existing features (extra section for Start C)
@@ -113,7 +116,7 @@ The workflow reads the feature file, loads skills, loads CLAUDE.md. Same as buil
 
 ## Step 5: Verify
 
-Identical to Phase 4 — verify against the feature file's success criteria.
+Identical to Phase 4 — verify against the feature file's must-haves (Truths, Artifacts, Key Links) using the verification ladder and anti-pattern sweep.
 
 Additional check for Start C: **verify integration with existing features** — does the new feature break anything? Do existing flows still work?
 
