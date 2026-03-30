@@ -8,7 +8,7 @@ You are executing the `/gsr:build` command. Your job is to build a specific feat
 
 1. **Never claim done without evidence.** Run the gate function before every completion claim. Evidence format: "build passes (0 errors), TS clean." Never "should work."
 2. **Corrections compound.** Every correction the user makes → ask "Should I add this to CLAUDE.md Learned Rules?" If yes, append it with today's date.
-3. **Skills are mandatory, not optional.** The feature file lists skills to load. Load them before implementing. The workflow enforces this — Claude can't skip it.
+3. **Skills are mandatory, not optional.** Skills are matched to tasks in Step 3.5. Do not skip the verification gate. Do not start implementing before skills are confirmed.
 
 ---
 
@@ -44,8 +44,7 @@ Read feature statuses from `docs/STATE.md`.
 Once the user picks a feature, read:
 1. `docs/STATE.md` — check that all prerequisite features for this feature are done
 2. `docs/features/<name>.md` — the complete product spec
-3. Project-wide skills from `docs/techstack.md`
-4. Feature-specific skills from the feature file's Skills section
+3. `docs/techstack.md` — project-wide skills
 
 **Prerequisite check:** Before loading anything else, scan the feature file for dependencies on other features. Cross-reference with STATE.md. If any prerequisite feature is `not started`, `in progress`, or `blocked`: use the decision gate pattern (`docs/patterns/decision-gate.md`). Enter plan mode and present:
 
@@ -59,9 +58,7 @@ You accept the risk of hitting integration gaps. Can be unblocked later.
 
 Wait for user to click. Do not proceed silently.
 
-**Load all skills now.** Read each skill's SKILL.md. The feature file's Skills section controls which skills are active — not memory, not habit.
-
-If a skill is listed but not installed: tell the user "This feature needs [skill] — install it with [command] before proceeding."
+**Load project-wide skills now.** Read each skill's SKILL.md from `docs/techstack.md`. Skills matched to specific tasks happen after the task list is generated — see Step 3.5.
 
 ---
 
@@ -81,13 +78,57 @@ User clicks their choice.
 
 ---
 
+## Step 3.5: Skills Matching + Verification
+
+Run this step regardless of mode, after the task list (Mode B) or file map (Mode A) is drafted — before anything executes.
+
+### Match skills to tasks
+
+For each task (or file group in Mode A), identify what technical capabilities it needs. Search the skills.sh marketplace for matching skills:
+
+```bash
+npx skills find <topic>   # e.g. npx skills find supabase, npx skills find mapbox, npx skills find testing
+```
+
+Build a verification table:
+
+```
+## Skills for [Feature Name]
+
+| Task | Skill | Status | Install |
+|------|-------|--------|---------|
+| [task] | [skill-name] | installed / not installed | [install command] |
+| [task] | — | no skill found | rely on docs |
+```
+
+If a skill covers multiple tasks, list it once and note which tasks it applies to.
+
+### Verification gate
+
+Present the table to the user. Use the decision gate pattern (`docs/patterns/decision-gate.md`) for any skill where there are multiple options.
+
+For skills not yet installed: tell the user which ones to install before proceeding and wait for confirmation.
+
+```
+Skills ready to load: [list]
+Skills to install first: [list with install commands]
+
+Install missing skills, then confirm to proceed.
+```
+
+**Do not start implementing until the user confirms skills are in order.**
+
+Once confirmed: load each installed skill's SKILL.md before writing any code.
+
+---
+
 ## Mode A: Creative Build
 
 ### How it works
 
 1. Read the feature file — understand: user flow, states, business rules, must-haves
 2. Read relevant existing code (to understand current state before changing anything)
-3. Plan if >2 files: "I'll modify: [file1], [file2], [file3]. Here's my approach: [brief plan]. Proceed?"
+3. Draft file map if >2 files, run Step 3.5 (skills matching), then: "Skills confirmed + file map approved — proceeding."
 4. Implement in small chunks that the user can review
 5. After each chunk: "done, test it — build passes (0 errors), TS clean"
 6. User tests in browser, gives feedback
@@ -134,11 +175,11 @@ Task list for [feature] — systematic mode:
 
 Parallelizable: tasks [1, 2] can run simultaneously (no file overlap)
 Sequential: task [3] depends on [1]
-
-Proceed?
 ```
 
-3. **User must approve before anything executes.** This gate is non-negotiable.
+3. **Run Step 3.5 (skills matching).** Match skills to tasks, present verification table, wait for user to confirm skills before proceeding.
+
+4. **User must approve task list + skills before anything executes.** This gate is non-negotiable.
 
 4. Execute tasks — parallelizable ones via subagent implementers:
    - Read `agents/implementer.md` for the implementer agent role
@@ -200,6 +241,6 @@ Red flags — if you're thinking any of these, stop:
 |---------|---------|
 | "The build probably passes, I'll skip checking" | Run the gate function. No shortcuts. |
 | "This correction is obvious, I don't need to ask about CLAUDE.md" | Ask. The user decides what goes in Learned Rules. |
-| "I'll skip loading skills for this simple feature" | Load skills from the feature file. Always. |
+| "I'll skip skills matching for this simple feature" | Run Step 3.5. Always. Skills prevent the most expensive mistakes. |
 | "The user hasn't responded to my completion message, must mean it's fine" | Wait for explicit approval before committing. |
 | "I'll combine a few small fixes into one commit" | Atomic commits. One per task. Reviewable, bisectable. |

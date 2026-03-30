@@ -85,17 +85,11 @@ Do not proceed to feature files until the user explicitly confirms.
 
 For each feature in the feature index, generate `docs/features/<name>.md` using `templates/feature-md.md`.
 
-Run Steps 2a and 2b in **parallel for each feature** (use researcher agents):
+**No skills matching here.** Skills are matched to tasks at build time, not at feature file generation time. Do not add a Skills section to feature files.
 
-### Step 2a: Skills Matching
+Run Step 2a in **parallel for each feature** (use researcher agents):
 
-Researcher agent brief: "Search skills.sh marketplace for ideal skills for a [feature type] feature in a [tech stack] project. Return: matching skills, whether each is installed in `.agents/skills/`, and which to recommend for installation."
-
-Use WebFetch to browse skills.sh. Compare with installed skills. Add confirmed skills to the feature file's Skills section.
-
-If no marketplace skill found for a technology: note `⚠️ No marketplace skill found for [tech] — rely on docs and learned rules`.
-
-### Step 2b: Don't Hand-Roll Sweep
+### Step 2a: Don't Hand-Roll Sweep
 
 For each technical capability the feature needs (auth, payments, email, file upload, real-time, geo, etc.):
 - Check if a proven library/service already solves it
@@ -140,7 +134,7 @@ For each feature, define must-haves at product level (no file paths):
 
 ### Generate the Feature File
 
-Fill in `templates/feature-md.md` with everything found above. Present to user for review after each feature, or batch if they prefer.
+Fill in `templates/feature-md.md` with everything found above. No Skills section. Present to user for review after each feature, or batch if they prefer.
 
 ---
 
@@ -171,25 +165,6 @@ Use `templates/techstack-md.md`. Fill in:
 
 ---
 
-## Step 4: Skills Recommendations
-
-After generating all feature files, produce a skills installation report:
-
-```
-## Skills Installation
-
-**Already installed:** [list]
-
-**Recommended to install:**
-- [skill-name] — needed for: [feature 1], [feature 2]. Install: `[install command]`
-- [skill-name] — needed for: [feature]. Install: `[install command]`
-
-**Not found in marketplace:**
-- ⚠️ No skill found for [tech] in [feature]
-```
-
----
-
 ## Iteration Protocol
 
 The user reviews PRD.md and feature files. Common revision patterns:
@@ -197,7 +172,7 @@ The user reviews PRD.md and feature files. Common revision patterns:
 - **Feature misunderstood** → rewrite that feature file, don't touch others
 - **Scope changed** → update PRD.md feature index + affected feature files
 - **New edge case discovered** → add to relevant feature file's Business Rules + Must-Haves
-- **Skills suggestion rejected** → remove from feature file, don't argue
+- **Don't Hand-Roll suggestion rejected** → remove from feature file, don't argue
 
 When the user approves: "Looks good" / "Let's proceed" → move to next step.
 
@@ -211,6 +186,6 @@ Red flags:
 |---------|---------|
 | "I'll put the schema in PRD.md for reference" | No. PRD is product-only. Schema lives in code. |
 | "This phase is a bit abstract but I'll demo sentence it anyway" | No. If you can't demo it, restructure the phase. |
-| "Skills matching can be skipped for simple features" | Skills take 2 minutes and prevent quality problems. Do it. |
+| "I'll add a Skills section to the feature file" | No. Skills are matched to tasks at build time in gsr:build. |
 | "I'll create the infrastructure before the user reviews PRD" | No. Review first. Infrastructure can be regenerated. |
 | "The must-haves are too obvious to write" | Write them. They're the verification contract. |
