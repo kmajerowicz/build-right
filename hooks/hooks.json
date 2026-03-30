@@ -4,7 +4,7 @@
       "matcher": "startup|resume|clear|compact",
       "hooks": [{
         "type": "command",
-        "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/session-start\"",
+        "command": "cd ${CLAUDE_PLUGIN_ROOT} && node hooks/session-start",
         "async": false
       }]
     }]

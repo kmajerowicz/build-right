@@ -72,15 +72,11 @@ if (fs.existsSync(settingsPath)) {
 const statuslineCmd = `node "${path.join(hooksDir, 'gsr-statusline.js')}"`;
 const existingStatusline = settings.statusLine?.command || '';
 
-if (existingStatusline.includes('gsr-statusline')) {
-  ok('Status line already configured for GSR');
-} else if (existingStatusline.includes('gsd-statusline')) {
+if (existingStatusline.includes('gsd-statusline')) {
   warn('Status line is configured for GSD — replacing with GSR');
-  settings.statusLine = { type: 'command', command: statuslineCmd };
-} else {
-  settings.statusLine = { type: 'command', command: statuslineCmd };
-  ok('Status line configured');
 }
+settings.statusLine = { type: 'command', command: statuslineCmd };
+ok('Status line configured');
 
 // Context monitor hook
 const monitorCmd = `node "${path.join(hooksDir, 'gsr-context-monitor.js')}"`;
@@ -95,25 +91,22 @@ const gsdMonitorExists = postToolHooks.some(entry =>
   entry.hooks?.some(h => h.command?.includes('gsd-context-monitor'))
 );
 
-if (gsrMonitorExists) {
-  ok('Context monitor already configured for GSR');
-} else {
-  if (gsdMonitorExists) {
-    warn('GSD context monitor found — GSR monitor will replace it');
-    // Remove GSD monitor
-    settings.hooks.PostToolUse = postToolHooks.filter(entry =>
-      !entry.hooks?.some(h => h.command?.includes('gsd-context-monitor'))
-    );
-  }
+// Remove any existing GSR or GSD context monitor entries (idempotent)
+settings.hooks.PostToolUse = postToolHooks.filter(entry =>
+  !entry.hooks?.some(h =>
+    h.command?.includes('gsr-context-monitor') ||
+    h.command?.includes('gsd-context-monitor')
+  )
+);
+if (gsdMonitorExists) warn('GSD context monitor replaced with GSR');
 
-  settings.hooks.PostToolUse.push({
-    hooks: [{
-      type: 'command',
-      command: monitorCmd
-    }]
-  });
-  ok('Context monitor configured');
-}
+settings.hooks.PostToolUse.push({
+  hooks: [{
+    type: 'command',
+    command: monitorCmd
+  }]
+});
+ok('Context monitor configured');
 
 // Write settings
 fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + '\n');
