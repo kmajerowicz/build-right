@@ -23,6 +23,14 @@
 - Before saying done: code compiles, no TS errors, build passes
 - Skills are enforced by the workflow (loaded from feature file), not by Claude remembering a rule
 
+### Mini-verification per task
+Before telling the user "done, test it," Claude runs the gate function (see Phase 4) at minimum Tier 1:
+1. `npm run build` (or equivalent) — must pass with 0 errors
+2. `npx tsc --noEmit` — must report 0 TypeScript errors
+3. Lint if configured — must pass
+
+If any check fails, Claude fixes the issue before claiming done. The claim must reference the output: "done, test it — build passes (0 errors), TS clean." Never "done, should work."
+
 ---
 
 ## Mode B: Systematic Build (agent-driven with verification)
@@ -42,6 +50,14 @@
 - Agent reads CLAUDE.md and all accumulated corrections before starting
 - If agent encounters ambiguity requiring product judgment → stops and asks, never decides autonomously
 - Verification is evidence-based: grep results, test output, build status
+
+### Mini-verification per task
+As part of each atomic commit cycle, before committing, the agent runs the gate function (see Phase 4) at minimum Tier 1:
+1. `npm run build` — must pass with 0 errors
+2. `npx tsc --noEmit` — must report 0 TypeScript errors
+3. Lint if configured — must pass
+
+If any check fails, the agent fixes before committing. Commit messages include evidence: "feat: add i18n for dashboard — build passes, 0 TS errors, 12/12 tests pass."
 
 ---
 

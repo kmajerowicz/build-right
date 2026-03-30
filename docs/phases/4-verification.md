@@ -14,16 +14,108 @@
 
 ---
 
-## The Verification Ladder
+## Gate Function — 5-Step Verification Protocol
 
-Try the strongest tier you can reach. Escalate only when you can't verify at a given level.
+Before ANY completion claim (in both build and verify phases), Claude follows this exact sequence:
 
-1. **Static** — Files exist, exports present, imports connected, not stubs. (grep, file checks)
-2. **Command** — Tests pass, build succeeds, lint clean, no TS errors. (run commands)
-3. **Behavioral** — Flows work in browser, API responses correct. (Claude can check via dev server)
-4. **Human** — Only when Claude genuinely can't verify. ("open /dashboard on mobile, verify pull-to-refresh")
+1. **IDENTIFY** — Name the command that proves the claim
+2. **RUN** — Execute the command
+3. **READ** — Read the full output
+4. **VERIFY** — Confirm the output supports the claim
+5. **CLAIM** — Only then state the claim with evidence
 
-**The rule:** "All tasks done" is NOT verification. Check the actual outcomes.
+No shortcuts. No skipping steps. No claiming based on "I just wrote the code so it should be fine."
+
+### Examples
+
+**Claim: "Build passes"**
+```
+IDENTIFY: npm run build
+RUN:      npm run build
+READ:     "Compiled successfully. 0 errors, 0 warnings."
+VERIFY:   Output explicitly says 0 errors → claim supported
+CLAIM:    "Build passes (0 errors, 0 warnings)"
+```
+
+**Claim: "No hardcoded API keys"**
+```
+IDENTIFY: grep -r "sk-\|AKIA\|ghp_\|api_key\s*=" src/
+RUN:      grep -r "sk-\|AKIA\|ghp_\|api_key\s*=" src/
+READ:     0 matches
+VERIFY:   No matches for common key patterns → claim supported
+CLAIM:    "grep confirms no hardcoded API keys (0 matches for sk-, AKIA, ghp_, api_key= patterns)"
+```
+
+**Claim: "All tests pass"**
+```
+IDENTIFY: npm test
+RUN:      npm test
+READ:     "Tests: 12 passed, 12 total. Suites: 4 passed, 4 total."
+VERIFY:   All tests pass, none skipped → claim supported
+CLAIM:    "Test suite: 12/12 pass across 4 suites"
+```
+
+---
+
+## Banned Words in Completion Claims
+
+These phrases are **never allowed** in completion claims. They signal guessing, not verifying.
+
+| Banned Phrase | Replace With |
+|---------------|-------------|
+| "should work" | "build passes (0 errors)" |
+| "probably works" | "test suite: 12/12 pass" |
+| "seems correct" | "grep confirms pattern X present in 3/3 files" |
+| "looks good" | "TypeScript: 0 errors, lint: 0 warnings" |
+| "I believe this is correct" | "verified: command output confirms [specific thing]" |
+| "this should fix it" | "build passes after change; test X now passes" |
+
+**The rule:** Every completion claim must reference a specific command output or observable result. If you cannot point to evidence, you are not done.
+
+---
+
+## Verification Ladder — 4 Tiers of Evidence
+
+Always start at Tier 1 and exhaust each tier before moving to the next. Never ask a human to verify something a machine can check.
+
+### Tier 1: AUTOMATED (cheapest — machine says pass/fail)
+- `npm run build` — compiles without errors
+- `npx tsc --noEmit` — no TypeScript errors
+- `npm run lint` — no lint violations
+- CI pipeline green
+
+**Use for:** Every completion claim, minimum bar.
+
+### Tier 2: GREP (pattern search — anti-patterns absent, expected patterns present)
+- `grep -r "TODO\|FIXME\|HACK" src/` — no leftover markers
+- `grep -r "console.log" src/` — no debug logging
+- `grep -r "hardcoded-string" src/` — no untranslated strings (i18n)
+- `grep -rL "import.*test" src/components/` — find files missing test imports
+- Verify expected patterns ARE present: `grep -r "aria-label" src/components/` — accessibility attributes exist
+
+**Use for:** Checking code patterns, anti-patterns, completeness.
+
+### Tier 3: TEST (test suite execution — pass/fail with output)
+- `npm test` — full suite
+- `npm test -- --coverage` — coverage thresholds
+- `npm run e2e` — end-to-end tests
+- Specific test files: `npm test -- dashboard.test.ts`
+
+**Use for:** Behavioral verification, regression checks, feature correctness.
+
+### Tier 4: HUMAN (most expensive — requires manual check)
+- "Open /dashboard, verify cards render with correct spacing"
+- "Test pull-to-refresh on mobile device"
+- "Verify dark mode contrast is readable"
+- "Check that animation feels smooth, not janky"
+
+**Use for:** Visual quality, feel, taste, device-specific behavior — things no command can verify. Only after Tiers 1-3 are exhausted.
+
+---
+
+## Evidence Format
+
+Verification evidence must be structured and traceable:
 
 ---
 
