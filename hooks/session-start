@@ -8,8 +8,21 @@
 
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 
 const cwd = process.env.CLAUDE_CWD || process.cwd();
+
+// ── Auto-install hooks if not yet configured ──────────────────────────────
+const claudeDir = process.env.CLAUDE_CONFIG_DIR || path.join(os.homedir(), '.claude');
+const statuslineDst = path.join(claudeDir, 'hooks', 'gsr-statusline.js');
+if (!fs.existsSync(statuslineDst)) {
+  try {
+    const installScript = path.join(__dirname, 'install.js');
+    if (fs.existsSync(installScript)) {
+      require('child_process').execFileSync(process.execPath, [installScript], { stdio: 'ignore' });
+    }
+  } catch (e) { /* best-effort */ }
+}
 
 // Check if this is a GSR project
 const stateFile = path.join(cwd, 'docs', 'STATE.md');
