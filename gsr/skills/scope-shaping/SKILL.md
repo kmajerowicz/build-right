@@ -21,28 +21,6 @@ Before asking anything, check if a scope already exists:
 - Does `docs/scope.md` exist? → **Start B path** (something exists)
 - No existing materials mentioned → **Start A path** (empty page)
 
-## Detect Project Scale
-
-After Step 1 (vision intake), assess the project scale. This determines how deep the scope process goes:
-
-**Small project** (weekend project, demo, single-feature tool, learning exercise):
-- 1-2 screens, well-understood domain, known tech stack
-- Signals: "for fun", "demo", "to show someone", "simple app", single clear feature
-
-**Full project** (production app, multi-feature, unknown domain):
-- Multiple screens/flows, business validation needed, competitive landscape matters
-- Signals: users beyond the builder, revenue goals, complex domain, multi-phase
-
-**Adaptation rules:**
-| Step | Small project | Full project |
-|------|--------------|--------------|
-| Step 2: Research | Skip competitive mapping. Don't-hand-roll sweep only if user's stack is unclear. | Full competitive mapping + don't-hand-roll sweep. |
-| Step 4: Prioritization | Skip. Everything is MVP by definition. | Full MVP/v2 triage. |
-| Step 5: Feature deep-dives | Light — focus on core mechanic only. Skip day-1/7/30 journey. | Full deep-dives with user journey mapping. |
-| v2 Backlog in scope.md | Omit section entirely. | Required. |
-
-If uncertain about scale, ask: "Is this a quick project (weekend build, demo) or something bigger (production app, real users)?"
-
 ---
 
 ## Start A: Empty Page
@@ -85,8 +63,6 @@ Wait for confirmation. Then research in parallel using researcher agents:
 **Agent 2 — Don't Hand-Roll sweep:**
 For each core technical capability in the user's idea (auth, payments, real-time, email, maps, file storage, geo, etc.), identify the best existing library/service. Use `${CLAUDE_PLUGIN_ROOT}/agents/researcher.md` format.
 
-**For small projects (see Detect Project Scale):** Skip competitive mapping agent. Run don't-hand-roll sweep only if user's tech stack is unclear. If stack is specified, skip Step 2 entirely.
-
 Results feed directly into scope and later into feature files. Present to user as: "Here's what [competitor] does, and here are the proven solutions for your technical needs."
 
 ### Step 3: First Scope Draft
@@ -111,7 +87,7 @@ For every feature that remains in MVP, apply the edge case checklist:
 - What's the day-0 experience?
 - What cascading effects on other features?
 
-Explicitly move features to v2 backlog with a reason.
+If features get deferred, move them to v2 backlog with a reason. If everything is MVP (small, focused projects where there's nothing to defer), skip v2 backlog — don't invent future features just to fill the section.
 
 ### Step 5: Feature Deep-Dives
 

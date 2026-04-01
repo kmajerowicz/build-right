@@ -59,7 +59,7 @@
 
 ## v2 Backlog
 
-[Features explicitly deferred, with why]
+[Features explicitly deferred, with why. Omit this section entirely if nothing was deferred — don't invent future features.]
 
 | Feature | Why Deferred |
 |---------|-------------|
