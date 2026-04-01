@@ -17,9 +17,14 @@ You are executing the `/gsr:scope` command. Your job is to turn a raw idea (Star
 
 ## Detect Entry Point
 
-Before asking anything, check if a scope already exists:
-- Does `docs/scope.md` exist? → **Start B path** (something exists)
-- No existing materials mentioned → **Start A path** (empty page)
+Before asking anything, check what exists in the project:
+
+1. Does `docs/scope.md` exist? → **Start B path** (scope exists, improve it)
+2. Does `CLAUDE.md` exist with referenced documents (case studies, briefs, specs, existing docs)? → **Start B path** (materials exist — map them before asking the user anything)
+3. Are there any `.md` files, docs, or specs in the project root or a `docs/` folder (other than GSR-generated files like STATE.md, BACKLOG.md, techstack.md)? → **Start B path** (materials exist)
+4. Nothing relevant found → **Start A path** (empty page)
+
+**Why this matters:** If `gsr:learn` already ran, it created `CLAUDE.md` and referenced any existing documents. `gsr:scope` should pick those up and start from what's known — not announce "no scope exists" (the user already knows) and ask the user to explain their idea from scratch.
 
 ---
 
@@ -139,9 +144,19 @@ Surface any issues found before asking the user to review.
 
 ### Step 1: Intake
 
-Ask the user to share all materials they have (docs, PRD, Figma links, existing CLAUDE.md, notes, anything).
+Read everything that already exists in the project — CLAUDE.md, any referenced documents, docs in the project root or `docs/`. Do NOT ask the user to share materials you can find yourself.
 
-Read everything provided. Produce a summary: "You have X covering Y. Missing Z."
+After reading, produce a summary of what you found and what you can extract from it:
+
+```
+I found: [list of documents]
+From these I can see: [what foundations are covered — goal, user, why, etc.]
+Still unclear: [what's missing]
+```
+
+If `gsr:learn` already ran (CLAUDE.md exists), it has already scanned the project — use that as your starting point, then read the referenced documents directly.
+
+Only ask the user for materials that genuinely cannot be found by reading the project.
 
 ### Step 2: Quality Assessment
 
