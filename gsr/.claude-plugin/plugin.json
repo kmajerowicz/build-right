@@ -1,6 +1,6 @@
 {
   "name": "gsr",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Get Shit Right — PRD-first, human-in-the-loop workflow for building production apps",
   "author": {
     "name": "Kacper Majerowicz",
