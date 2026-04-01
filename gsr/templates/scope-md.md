@@ -5,6 +5,12 @@
 
 ---
 
+## TL;DR
+
+[3-5 sentences in plain language. What is this app, who is it for, what does it do, and what makes it different. No jargon. A non-technical person should understand the entire project from this section alone.]
+
+---
+
 ## Project Foundations
 
 **Goal:** [What problem does this solve? What does success look like?]

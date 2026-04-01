@@ -9,6 +9,8 @@ You are executing the `/gsr:build` command. Your job is to build a specific feat
 1. **Never claim done without evidence.** Run the gate function before every completion claim. Evidence format: "build passes (0 errors), TS clean." Never "should work."
 2. **Corrections compound.** Every correction the user makes → ask "Should I add this to CLAUDE.md Learned Rules?" If yes, append it with today's date.
 3. **Skills are mandatory, not optional.** Skills are matched to tasks in Step 3.5. Do not skip the verification gate. Do not start implementing before skills are confirmed.
+4. **Never reference assets that don't exist.** No placeholder image URLs, no `src="/images/..."` pointing to nonexistent files, no icon references without the icon being present. If UI needs a graphic, use inline SVG, CSS shapes, unicode characters, or descriptive text. Hallucinated images break user trust instantly.
+5. **Tests match what's built.** Only give testing instructions for features that are actually implemented and functional. Never list test scenarios for placeholder/coming-soon screens. If a feature depends on an unbuilt feature, say so explicitly: "Upload works, but full flow needs Configure built next."
 
 ---
 
@@ -32,10 +34,20 @@ Available features — Phase 1: [Phase Name]
 2. [Feature name] — not started
 3. [Feature name] — in progress
 
-Which feature do you want to build?
+Which feature do you want to build? (or "all" to build entire phase)
 ```
 
 Read feature statuses from `docs/STATE.md`.
+
+**Batch build:** If the user says "all", "build everything", "whole phase", or similar — switch to batch mode:
+1. Build features sequentially in dependency order
+2. Use Creative mode for UI features, Systematic for non-UI (auto-classify using the Task Classification Heuristic)
+3. Run mini-verification after each feature, but don't stop to ask "which feature next?" — proceed automatically
+4. After each feature: give a one-line status update ("Upload done ✓ — moving to Configure") instead of full test instructions
+5. Give full test instructions only at the end, covering all built features together
+6. If you hit a blocking error or ambiguity requiring a product decision, stop and ask — then resume batch after the answer
+
+The user can also interrupt batch mode at any time to switch to feature-by-feature.
 
 ---
 
@@ -136,6 +148,12 @@ Once confirmed: load each installed skill's SKILL.md before writing any code.
 8. Atomic commit on approval: `git commit -m "feat: [feature] — [what was built]"`
 9. Update STATE.md: increment task count for this feature
 
+### Communication Rules (both modes)
+
+- **Questions go at the end.** Structure every message as: status/update first → separator (`---`) → numbered questions with options. Never bury a question inside reasoning.
+- **Number all options.** Even binary choices get numbers: "1. Tailwind 2. CSS Modules". User should be able to reply with just a number.
+- **Minimize noise.** Don't show every file edit blow-by-blow. Batch small changes, give one summary. Save detailed output for things the user needs to review.
+
 ### Rules — Mode A
 
 **Banned completion phrases:**
@@ -148,8 +166,12 @@ Once confirmed: load each installed skill's SKILL.md before writing any code.
 1. `npm run build` (or equivalent) → must pass with 0 errors
 2. `npx tsc --noEmit` → must report 0 TypeScript errors
 3. Lint if configured → must pass
+4. **Runtime smoke test** — if the feature has a critical path (file processing, data transformation, API call, PDF generation, etc.), verify it actually runs. Options:
+   - Write and run a minimal test/script that exercises the critical path
+   - If it's a UI feature, verify the dev server renders without console errors
+   - Build clean ≠ works correctly. A TypeScript-clean app can still crash at runtime on `undefined` property access, missing imports, or wrong data shapes.
 
-If any check fails → fix it. Then run all checks again. Then claim done with: "done, test it — build passes (0 errors), TS clean."
+If any check fails → fix it. Then run all checks again. Then claim done with: "done, test it — build passes (0 errors), TS clean, [critical path verified]."
 
 **When stuck or something breaks:**
 Switch to systematic debugging. Read `${CLAUDE_PLUGIN_ROOT}/docs/patterns/systematic-debugging.md`. Follow the 4-phase process (OBSERVE → HYPOTHESIZE → TEST → CONCLUDE). Return to build flow after fix is verified.
@@ -244,3 +266,6 @@ Red flags — if you're thinking any of these, stop:
 | "I'll skip skills matching for this simple feature" | Run Step 3.5. Always. Skills prevent the most expensive mistakes. |
 | "The user hasn't responded to my completion message, must mean it's fine" | Wait for explicit approval before committing. |
 | "I'll combine a few small fixes into one commit" | Atomic commits. One per task. Reviewable, bisectable. |
+| "I'll use a placeholder image URL for now" | No. Use inline SVG, CSS, unicode, or text. Never reference nonexistent assets. (Iron Law #4) |
+| "The user can test Configure even though it's not built yet" | Only test what's built. Never give test tasks for placeholders. (Iron Law #5) |
+| "The user said build all, but I should still ask about each feature" | Respect batch mode. Only stop for blocking errors or product decisions. |

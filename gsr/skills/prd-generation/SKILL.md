@@ -76,7 +76,21 @@ After self-verification: fix any bugs you found, then present PRD.md with a summ
 For each open decision or ambiguous assumption found: use the decision gate pattern (`${CLAUDE_PLUGIN_ROOT}/docs/patterns/decision-gate.md`). Enter plan mode, present options with recommendation, user clicks. One decision at a time.
 
 **Final step — always, regardless of how many decisions were resolved:**
-Ask the user to read through the full PRD themselves: "Please read through the PRD — does it accurately represent the product? Anything to adjust?"
+Present a concise summary instead of sending the user to read a long document:
+
+```
+PRD ready. Key decisions baked in:
+1. [Most important product decision]
+2. [Second most important]
+3. [Third — if applicable]
+
+Build phases: [N] phases, starting with [Phase 1 demo sentence].
+
+Anything to adjust, or proceed to feature files?
+```
+
+The full PRD is available in `docs/PRD.md` if the user wants to read it, but don't require it. The summary should surface the top 3-5 decisions that are most likely to be wrong or surprising. If the user says "looks good" based on the summary — that's sufficient to proceed.
+
 Do not proceed to feature files until the user explicitly confirms.
 
 ---
@@ -162,6 +176,15 @@ Use `${CLAUDE_PLUGIN_ROOT}/templates/backlog-md.md`. Fill in:
 Use `${CLAUDE_PLUGIN_ROOT}/templates/techstack-md.md`. Fill in:
 - Tech stack from scope.md
 - Project-wide skills (responsive-design, etc. — based on what was identified as project-wide)
+
+---
+
+## Communication Rules
+
+- **Questions go at the end.** Structure every message as: status/update first → separator (`---`) → numbered questions with options. Never bury a question inside reasoning.
+- **Number all options.** Even binary choices get numbers. User should be able to reply with just a number.
+- **Minimize noise.** Don't show every file write blow-by-blow. When generating multiple feature files, give one summary at the end listing all files created — not a message per file.
+- **File creation communication.** Never ask "do you want to create PRD.md?" after writing it. The file exists — ask if the content is right.
 
 ---
 

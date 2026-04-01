@@ -8,6 +8,34 @@ Open topics, questions, and ideas for discussion. Anyone can add items or respon
 
 ## Ideas / To Discuss
 
+### Terminal Visual Polish — Catch Up with GSD
+
+**Context:** First user feedback (April 2026, vibe coder building imposition tool) directly compared GSR and GSD visual experience in the terminal. GSD has custom terminal rendering: colors, interactive option selectors, styled progress indicators, custom UI components. User said: "GSD robi niestety lepiej: kolorki, czytelny flow odpowiadania na pytania, daje 3 opcje lub wpisujesz swoją." and "UI mógłby być przyjaźniejszy."
+
+**What GSD does that GSR can't (today):**
+- Colored text output (section headers, warnings, success messages)
+- Custom interactive option pickers (not just plan mode)
+- Styled progress bars during agent work
+- Visual grouping of question blocks with distinct styling
+- Numbered option cards with click-to-select
+
+**What GSR can do within Claude Code (implemented in v0.2 feedback fixes):**
+- Decision gate pattern (plan mode with clickable options)
+- Numbered questions with markdown formatting
+- Visual separators (`---`) between reasoning and questions
+- Tables instead of walls of text
+- Shorter messages with less inline reasoning
+
+**Gap:** Even with all Claude Code formatting tricks, GSR will look like a markdown terminal app. GSD looks like a custom TUI. This is a fundamental trade-off of being a Claude Code plugin (zero custom infra, low barrier to entry, works everywhere Claude Code works) vs. a standalone tool (full control over rendering, but much higher development cost).
+
+**Future options to explore:**
+1. Claude Code custom rendering API — if Anthropic ever exposes richer terminal output (ANSI colors, custom components), adopt immediately
+2. Companion TUI wrapper — a thin shell around Claude Code that intercepts GSR output and applies styling (risky: fragile, version-dependent)
+3. Claude Code hooks for output formatting — hooks currently trigger on tool calls; if they ever support output post-processing, use for styling
+4. Accept the gap — focus on information architecture (what we show and when) rather than visual polish. A well-structured plain message beats a pretty but noisy one.
+
+**Why this matters:** For vibe coders (non-technical users), visual clarity is not cosmetic — it's functional. They scan, not read. Colors and structure help them find decisions faster. This directly impacts the "user in control" promise.
+
 ---
 
 ## Resolved (moved to decisions.md)

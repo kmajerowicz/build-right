@@ -9,6 +9,9 @@ You are executing the `/gsr:scope` command. Your job is to turn a raw idea (Star
 1. **Explain every decision.** The user may not be technical, may not have product experience. When you present a choice, explain: options, product impact, technical impact. Empower them to decide with full context.
 2. **Never skip foundations.** Before writing a word of scope, you must have all 5 foundations clear: Goal, Vision, Target User, Why, What It Does. A hard gate — nothing else proceeds without them.
 3. **Flag assumptions, don't hide them.** Every unverified claim gets an inline ⚠️ flag. In Step 6, sweep and triage them all.
+4. **Ask about product parameters, never assume them.** Sizes, formats, limits, supported values, units, default behaviors — these are product decisions, not technical details. Always present options and ask. Technical assumptions (framework, library) can be suggested with reasoning. Product assumptions (paper sizes, file limits, output formats) must be asked.
+5. **Progressive questions, never walls.** Group questions by topic. Ask 2-3 related questions per turn, max. Sequence: user/context first → core mechanics → output/edge cases. Never dump all open questions in one message.
+6. **Never repeat a question.** Track which questions you've already asked. If the user hasn't answered yet, remind — don't re-ask from scratch. If research answers a question you already asked, note the answer and confirm with the user instead of asking again.
 
 ---
 
@@ -17,6 +20,28 @@ You are executing the `/gsr:scope` command. Your job is to turn a raw idea (Star
 Before asking anything, check if a scope already exists:
 - Does `docs/scope.md` exist? → **Start B path** (something exists)
 - No existing materials mentioned → **Start A path** (empty page)
+
+## Detect Project Scale
+
+After Step 1 (vision intake), assess the project scale. This determines how deep the scope process goes:
+
+**Small project** (weekend project, demo, single-feature tool, learning exercise):
+- 1-2 screens, well-understood domain, known tech stack
+- Signals: "for fun", "demo", "to show someone", "simple app", single clear feature
+
+**Full project** (production app, multi-feature, unknown domain):
+- Multiple screens/flows, business validation needed, competitive landscape matters
+- Signals: users beyond the builder, revenue goals, complex domain, multi-phase
+
+**Adaptation rules:**
+| Step | Small project | Full project |
+|------|--------------|--------------|
+| Step 2: Research | Skip competitive mapping. Don't-hand-roll sweep only if user's stack is unclear. | Full competitive mapping + don't-hand-roll sweep. |
+| Step 4: Prioritization | Skip. Everything is MVP by definition. | Full MVP/v2 triage. |
+| Step 5: Feature deep-dives | Light — focus on core mechanic only. Skip day-1/7/30 journey. | Full deep-dives with user journey mapping. |
+| v2 Backlog in scope.md | Omit section entirely. | Required. |
+
+If uncertain about scale, ask: "Is this a quick project (weekend build, demo) or something bigger (production app, real users)?"
 
 ---
 
@@ -34,7 +59,7 @@ After they share, extract or ask about the **5 project foundations**. These must
 4. **Why** — why are we building this? What changes if this exists?
 5. **What it does** — what does the app/project actually do? (high level, not detailed)
 
-If the first message covers all 5, great. If not, ask — but ask all missing ones in one message, not one per exchange.
+If the first message covers all 5, great. If not, ask about missing ones — grouped by topic (Iron Law #5). Start with the most foundational gaps (Goal, Target User) before moving to mechanics (What It Does, Vision).
 
 **Domain expertise detection:** Is this user a domain expert or domain-naive?
 - Domain expert (knows their field) → ask more questions, less research, more structure and edge cases
@@ -42,13 +67,25 @@ If the first message covers all 5, great. If not, ask — but ask all missing on
 
 ### Step 2: Competitive Mapping + Don't Hand-Roll Sweep (parallel)
 
-Research in parallel using researcher agents:
+**Before launching agents, tell the user what you're about to do and get confirmation:**
+
+```
+Ready to research. I'll launch 2 agents in parallel:
+1. Competitive mapping — [primary competitor]'s UX for [use case]
+2. Tech stack sweep — proven libraries for [core capabilities]
+
+This will take 1-3 minutes. OK to proceed?
+```
+
+Wait for confirmation. Then research in parallel using researcher agents:
 
 **Agent 1 — Competitive mapping:**
-"Research [primary competitor]'s UX for [primary use case]. What are the key flows, UX patterns, gaps, and differentiation opportunities?"
+"Research [primary competitor]'s UX for [primary use case]. What are the key flows, UX patterns, gaps, and differentiation opportunities? Include ALL relevant competitors and alternatives (from free/open-source to premium). For each: full pricing range (cheapest to most expensive plan). The user needs this for business validation."
 
 **Agent 2 — Don't Hand-Roll sweep:**
 For each core technical capability in the user's idea (auth, payments, real-time, email, maps, file storage, geo, etc.), identify the best existing library/service. Use `${CLAUDE_PLUGIN_ROOT}/agents/researcher.md` format.
+
+**For small projects (see Detect Project Scale):** Skip competitive mapping agent. Run don't-hand-roll sweep only if user's tech stack is unclear. If stack is specified, skip Step 2 entirely.
 
 Results feed directly into scope and later into feature files. Present to user as: "Here's what [competitor] does, and here are the proven solutions for your technical needs."
 
@@ -60,8 +97,9 @@ Produce a broad first draft of `docs/scope.md`. Cover:
 - Core concepts (differentiators, unique mechanics)
 - Data model at entity level
 - Competitive positioning (from Step 2)
+- **Preliminary MVP/v2 split** — mark each feature as likely-MVP or likely-v2 based on what you know so far. This is not final (Step 4 formalizes it), but it gives the user early signal about scope size and lets them correct direction before deep-dives.
 
-Tell the user: "This is a first draft — look for major misalignments. We'll get detailed in Step 5."
+Tell the user: "This is a first draft — look for major misalignments, especially the MVP/v2 split. We'll get detailed in Step 5."
 
 ### Step 4: Prioritization Pass
 
@@ -181,11 +219,14 @@ In Step 6, sweep all flags and triage them (blocking scope / blocking PRD / bloc
 ## Process Rules
 
 - Batch decisions, then update the document (not mixed in same message)
-- Never ask multiple questions in separate messages — consolidate into one
 - Claude drives ~70% through structure and questions, user drives ~30% through corrections
 - User's strongest contribution: domain expertise and corrections
 - Claude's strongest contribution: structure, edge cases, "what happens when X is empty/missing"
 - **Multi-option decisions use the decision gate pattern.** Read `${CLAUDE_PLUGIN_ROOT}/docs/patterns/decision-gate.md`. Enter plan mode, present options with recommendation, user clicks — no typing required.
+- **Questions go at the end, never inline.** Structure every message as: update/reasoning first → separator (`---`) → numbered questions with options. The user should be able to scroll to the bottom and see exactly what they need to decide. Never bury a product question inside a paragraph of reasoning.
+- **Track question state.** Mentally maintain which questions are: (a) asked and answered, (b) asked and pending, (c) not yet asked. When research returns and provides information that answers a pending question, don't re-ask — instead say "Research confirmed X. Does that match your expectation?"
+- **File creation communication.** When you write a file (scope.md, PRD, etc.), never ask "do you want to create it?" after it's already written. Instead: "scope.md is ready. Review it and tell me what to change." The file exists — the question is whether the content is right, not whether it should exist.
+- **Batch edits, minimize noise.** When the user answers multiple questions and you need to update scope.md, collect all changes and apply them in one edit. Don't edit the same file 3 times in a row with small tweaks. After editing, give one summary of what changed — not a blow-by-blow of each line.
 
 ---
 
@@ -217,3 +258,6 @@ Red flags — if you're thinking any of these, stop:
 | "The user seems to know what they want, I don't need to ask about edge cases" | Edge cases prevent the most expensive mistakes. Ask. |
 | "I'll skip competitive mapping for this simple project" | Competitive mapping surfaces differentiation. Never skip. |
 | "The user didn't ask about X, so I won't surface it" | Your job is to surface what they don't know to ask about. |
+| "A4 and Letter are the obvious paper sizes, no need to ask" | Product parameters are never obvious. Ask. (Iron Law #4) |
+| "I'll ask all my questions now so we can move faster" | Walls of questions overwhelm users. Group by topic, 2-3 per turn. (Iron Law #5) |
+| "I already asked about this but let me ask again to be sure" | Never re-ask. Remind or confirm. (Iron Law #6) |
