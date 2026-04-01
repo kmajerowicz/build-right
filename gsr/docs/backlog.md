@@ -8,6 +8,17 @@ Open topics, questions, and ideas for discussion. Anyone can add items or respon
 
 ## Ideas / To Discuss
 
+### Update Notifications — Inform Users When New GSR Version is Available
+
+**Context:** Currently `/gsr:update` exists as a manual command but there's no mechanism to notify users that a new version is available. Users have to know to run it themselves.
+
+**Options explored:**
+1. **Status line notification** — hook into Claude Code status line (like Zest does). Shows `GSR v0.1.1 → v0.2.0 available` passively. Requires status line integration + GitHub API fetch.
+2. **Check in every command** — at the start of each `/gsr:*`, compare local version in `plugin.json` with GitHub releases API. One-line notice if newer version exists. Can be cached to avoid latency.
+3. **`/gsr:status` only** — no auto-check, user runs `gsr:status` manually to see if update is available. Zero overhead but requires user initiative.
+
+**Decision pending.** Option 2 is the least invasive starting point.
+
 ### Terminal Visual Polish — Catch Up with GSD
 
 **Context:** First user feedback (April 2026, vibe coder building imposition tool) directly compared GSR and GSD visual experience in the terminal. GSD has custom terminal rendering: colors, interactive option selectors, styled progress indicators, custom UI components. User said: "GSD robi niestety lepiej: kolorki, czytelny flow odpowiadania na pytania, daje 3 opcje lub wpisujesz swoją." and "UI mógłby być przyjaźniejszy."
