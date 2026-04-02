@@ -22,18 +22,38 @@ Before asking the user anything, scan the project:
 Read these if they exist:
 - CLAUDE.md
 - README.md
-- docs/PRD.md
-- docs/scope.md
-- docs/STATE.md
-- docs/techstack.md
-- docs/features/ (list files)
 - package.json or equivalent
 - src/ structure (top-level folders)
 - Any config files (.env.example, tsconfig.json, next.config.*, etc.)
 ```
 
+**Doc directory detection** — users may store docs in non-standard locations. Before looking for GSR artifacts, find the active doc root by checking these candidates in order:
+
+```
+1. .ai/          (Cursor AI, common AI-native projects)
+2. .cursor/      (Cursor IDE docs)
+3. ai/           (generic AI docs folder)
+4. docs/         (traditional default)
+5. doc/          (alternative spelling)
+6. documentation/
+```
+
+Use the **first directory that exists and contains any of**: PRD.md, prd.md, scope.md, STATE.md, techstack.md, BACKLOG.md, or a `features/` or `work/` subfolder. If multiple candidates qualify, pick the one with the most matching files. If none qualify, default to `docs/`.
+
+Once the doc root is identified (call it `DOC_ROOT`), read:
+```
+- DOC_ROOT/PRD.md (or prd.md)
+- DOC_ROOT/scope.md
+- DOC_ROOT/STATE.md
+- DOC_ROOT/techstack.md
+- DOC_ROOT/BACKLOG.md
+- DOC_ROOT/features/ (list files)
+- Any subdirectory that looks like feature specs (work/, specs/, features/)
+```
+
 From this scan, determine:
 - **What GSR artifacts exist** (CLAUDE.md, STATE.md, PRD.md, feature files)
+- **Doc root** — the directory where docs live (record this — all subsequent file creation uses this path)
 - **Tech stack** (language, framework, database, auth, hosting — from package.json/config)
 - **Code conventions** (naming patterns, folder structure — from src/)
 - **Project maturity** (has tests? has docs? has migrations?)
@@ -60,17 +80,17 @@ For large codebases (>50 files in src/), dispatch parallel researcher agents to 
 Based on what you found in Step 1, handle each scenario:
 
 ### No GSR setup (CLAUDE.md missing or no GSR references)
-Create from scratch:
+Create from scratch using `DOC_ROOT` detected in Step 1 (default: `docs/` if nothing found):
 - `CLAUDE.md` from `${CLAUDE_PLUGIN_ROOT}/templates/claude-md.md` — fill in project name, stack references, conventions found in Step 2
-- `docs/techstack.md` from `${CLAUDE_PLUGIN_ROOT}/templates/techstack-md.md` — fill in stack detected
-- `docs/STATE.md` from `${CLAUDE_PLUGIN_ROOT}/templates/state-md.md` — minimal placeholder
-- `docs/BACKLOG.md` from `${CLAUDE_PLUGIN_ROOT}/templates/backlog-md.md` — empty
-- `docs/features/` — create directory (empty)
+- `DOC_ROOT/techstack.md` from `${CLAUDE_PLUGIN_ROOT}/templates/techstack-md.md` — fill in stack detected
+- `DOC_ROOT/STATE.md` from `${CLAUDE_PLUGIN_ROOT}/templates/state-md.md` — minimal placeholder
+- `DOC_ROOT/BACKLOG.md` from `${CLAUDE_PLUGIN_ROOT}/templates/backlog-md.md` — empty
+- `DOC_ROOT/features/` — create directory (empty)
 
 ### CLAUDE.md exists, no PRD
 - Read CLAUDE.md — validate references are accurate (do the paths still exist?)
-- Add GSR structure note if missing: references to docs/PRD.md, docs/features/
-- Create missing docs/ files as above
+- Add GSR structure note if missing: references to `DOC_ROOT/PRD.md`, `DOC_ROOT/features/`
+- Create missing `DOC_ROOT/` files as above
 - Do NOT overwrite existing content in CLAUDE.md
 
 ### CLAUDE.md + PRD exist, no feature files
@@ -94,7 +114,10 @@ After indexing, output a structured assessment:
 ## GSR Assessment — [Project Name]
 
 ### What Exists
-[List GSR artifacts found and their status]
+[List GSR artifacts found and their status, including which doc root was detected]
+
+### Doc Root
+[Path used for GSR artifacts, e.g. `.ai/` or `docs/`]
 
 ### Tech Stack Detected
 [Framework, language, key libraries, version of node/etc.]

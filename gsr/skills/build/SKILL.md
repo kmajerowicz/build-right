@@ -94,6 +94,20 @@ User clicks their choice.
 
 Run this step regardless of mode, after the task list (Mode B) or file map (Mode A) is drafted — before anything executes.
 
+### Output-type pre-filter (before per-task matching)
+
+Before matching skills to individual tasks, check the **output type** of the overall deliverable. If the output will be seen by human eyes — UI screens, slides, landing pages, HTML files, PDFs, email templates, presentations — then a design/frontend-design skill is required regardless of framework or technology used.
+
+Search for a design skill explicitly:
+```bash
+npx skills find frontend-design
+npx skills find design
+```
+
+"Just HTML", "no React", "single file", or "no build step" do not exempt this. The skill exists to inject aesthetic quality criteria (layout, typography, spacing, visual hierarchy) — those apply to any visual output, not just component frameworks.
+
+If no design skill is found or installed: surface this explicitly as a warning before proceeding. Do not silently continue without it for visual deliverables.
+
 ### Match skills to tasks
 
 For each task (or file group in Mode A), identify what technical capabilities it needs. Search the skills.sh marketplace for matching skills:
