@@ -1,12 +1,14 @@
 You are running the `/gsr:status` command.
 
-Read `STATE.md` in the current working directory and surface a concise status snapshot.
+**Working directory check:** If `.gsr-session.json` exists and `project_dir` points to a different directory than `pwd`, `cd` there first.
+
+Look for `docs/STATE.md` in the current working directory.
 
 ## If STATE.md does not exist
 
-Tell the user:
+Also check if `docs/scope.md` exists — if it does, suggest `/gsr:prd`. Otherwise:
 
-> No STATE.md found. Run `/gsr:scope` to start a new project, or `/gsr:build` if you already have a PRD.
+> No STATE.md found. Run `/gsr:scope` to start a new project, or `/gsr:learn` if you have an existing codebase.
 
 Stop here — do not continue.
 
@@ -34,6 +36,15 @@ Parse it and output a structured status report using this exact format:
 
 ### Deferred to Backlog
 [List items from the Deferred section, or "None." if empty]
+
+### Suggested Command
+[Derive from STATE.md using this logic:]
+- If all phases show PASS and backlog is triaged → "Project complete. Nothing to do."
+- If any phase shows VERIFYING → `/gsr:verify`
+- If any phase shows BUILDING or any feature is in progress → `/gsr:build`
+- If phases exist but all are NOT STARTED → `/gsr:build` (pick first feature from Phase 1)
+- If no phases exist but scope.md exists → `/gsr:prd`
+- If no scope.md exists → `/gsr:scope`
 
 ---
 

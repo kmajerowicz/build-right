@@ -60,7 +60,19 @@ process.stdin.on('end', () => {
 
     // ── Current focus from GSR STATE.md ────────────────────────────────
     let focus = '';
-    const cwd = data.workspace?.current_dir || process.cwd();
+    let cwd = data.workspace?.current_dir || process.cwd();
+
+    // Check session manifest for correct project directory
+    const sessionPath = path.join(cwd, '.gsr-session.json');
+    if (fs.existsSync(sessionPath)) {
+      try {
+        const session = JSON.parse(fs.readFileSync(sessionPath, 'utf8'));
+        if (session.project_dir && fs.existsSync(session.project_dir)) {
+          cwd = session.project_dir;
+        }
+      } catch (e) { /* silent */ }
+    }
+
     const statePath = path.join(cwd, 'docs', 'STATE.md');
     if (fs.existsSync(statePath)) {
       try {
