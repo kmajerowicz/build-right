@@ -236,6 +236,8 @@ Use `${CLAUDE_PLUGIN_ROOT}/templates/scope-md.md` as the structure. Fill in:
 
 Write the file to the user's project at `docs/scope.md`.
 
+After writing scope.md, update `docs/STATE.md` if it exists: find the `Next action` line and replace its value with `Run /gsr:prd to generate PRD and feature files`. This keeps the status line accurate. If STATE.md does not exist, skip this step.
+
 ---
 
 ## Iron Law Enforcement
