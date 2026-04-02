@@ -170,11 +170,15 @@ Once confirmed: load each installed skill's SKILL.md before writing any code.
 
 ### Rules — Mode A
 
-**Banned completion phrases:**
-- "should work" → evidence required
-- "probably works" → evidence required
-- "seems correct" → evidence required
-- "looks good" → evidence required
+**Banned completion phrases (Red Flag Language):**
+- "should work", "should pass" → run the command, show the output
+- "probably works", "likely fine" → run the command, show the output
+- "seems correct", "seems to work" → run the command, show the output
+- "looks good", "I believe this passes" → run the command, show the output
+- "Done!" / "All done!" → show evidence first, then state completion
+- "It works" → show what command proved it works
+
+If you catch yourself reaching for hedging language, you haven't verified. Go run the gate function.
 
 **Required gate function before every "done, test it":**
 1. `npm run build` (or equivalent) → must pass with 0 errors
@@ -185,7 +189,13 @@ Once confirmed: load each installed skill's SKILL.md before writing any code.
    - If it's a UI feature, verify the dev server renders without console errors
    - Build clean ≠ works correctly. A TypeScript-clean app can still crash at runtime on `undefined` property access, missing imports, or wrong data shapes.
 
-If any check fails → fix it. Then run all checks again. Then claim done with: "done, test it — build passes (0 errors), TS clean, [critical path verified]."
+If any check fails → fix it. Then run all checks again. Then claim done using the evidence format:
+```
+done, test it:
+✅ npm run build → Exit 0, 0 errors → "Build passes"
+✅ npx tsc --noEmit → Exit 0 → "TypeScript clean"
+✅ [critical path test] → [output] → "[what it proves]"
+```
 
 **When stuck or something breaks:**
 Switch to systematic debugging. Read `${CLAUDE_PLUGIN_ROOT}/docs/patterns/systematic-debugging.md`. Follow the 4-phase process (OBSERVE → HYPOTHESIZE → TEST → CONCLUDE). Return to build flow after fix is verified.

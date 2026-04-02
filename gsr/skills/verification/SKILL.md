@@ -43,7 +43,7 @@ npm run build      # must pass with 0 errors
 npx tsc --noEmit   # must report 0 TypeScript errors
 npm run lint       # must pass if configured
 ```
-Report: pass/fail with actual output.
+Report using evidence format (see Evidence Format below).
 
 ### Check 2: Anti-Pattern Sweep (Tier 2 — Grep)
 Standard patterns:
@@ -87,12 +87,60 @@ npm test               # if tests cover this truth
 
 ---
 
+## Evidence Format
+
+Every verification claim must follow the evidence format: show the command, the actual output, then the verdict. This makes results scannable and trustworthy.
+
+```
+✅ npm run build → Exit 0, 0 errors → "Build passes"
+✅ npx tsc --noEmit → Exit 0, 0 errors → "TypeScript clean"
+✅ npm run lint → Exit 0, 0 warnings → "Lint passes"
+❌ grep -r "console.log" src/ → 3 matches (auth.ts:12, api.ts:45, utils.ts:8) → BLOCKER: debug logs in production code
+⚠️ grep -r "TODO" src/ → 1 match (config.ts:22) → MINOR: moved to BACKLOG.md
+```
+
+Rules:
+- `✅` = check passed with evidence
+- `❌` = check failed — blocker
+- `⚠️` = check found minor issue — not blocking
+- Always show the actual command, actual output summary, then the claim
+- Never write "should pass", "probably works", "seems correct", or "looks good" — these are red flag phrases that signal skipped verification (see Red Flag Language below)
+
+---
+
+## Red Flag Language
+
+The following phrases are **banned** in verification output. If you catch yourself writing any of them, stop — you haven't actually verified:
+
+| Banned Phrase | What To Do Instead |
+|---------------|-------------------|
+| "should work" | Run the command. Show the output. |
+| "should pass" | Run the command. Show the output. |
+| "probably works" | Run the command. Show the output. |
+| "seems correct" | Run the command. Show the output. |
+| "looks good" | Run the command. Show the output. |
+| "seems to work" | Run the command. Show the output. |
+| "I believe this passes" | Run the command. Show the output. |
+| "likely fine" | Run the command. Show the output. |
+| "Done!" / "All done!" | Show evidence, then state completion. |
+| "It works" | Show what command proved it works. |
+
+If you find yourself using hedging language, it means you haven't run the verification. Go back to Step 2 and actually execute the checks.
+
+---
+
 ## Step 3: Compile Verification Report
 
 Format the report per `docs/phases/4-verification.md`:
 
 ```markdown
 ## [Feature/Phase] Verification — [date]
+
+### Evidence Summary
+✅ npm run build → Exit 0, 0 errors → "Build passes"
+✅ npx tsc --noEmit → Exit 0 → "TypeScript clean"
+✅ npm run lint → Exit 0 → "Lint passes"
+✅ npm test → 24/24 pass → "All tests pass"
 
 ### Demo Check
 > After this phase: [demo sentence from PRD]
@@ -101,7 +149,7 @@ Format the report per `docs/phases/4-verification.md`:
 ### Observable Truths
 | # | Truth | Status | Evidence |
 |---|-------|--------|----------|
-| 1 | [Truth] | PASS / FAIL / HUMAN | [command output or grep result] |
+| 1 | [Truth] | PASS / FAIL / HUMAN | [command → output → claim] |
 
 ### Artifacts
 | File | Expected | Status | Evidence |
@@ -119,7 +167,6 @@ Format the report per `docs/phases/4-verification.md`:
 | [file] | [pattern] | Blocker / Minor |
 
 ### Summary
-Evidence: [build status, TS errors, test results]
 Blockers: [list or "none"]
 Human checks needed: [list or "none"]
 ```
@@ -217,3 +264,4 @@ Red flags:
 | "I'll mark this as PASS and let the user find issues in testing" | PASS means verified, not hoped-for. Run the checks. |
 | "The anti-pattern sweep found nothing, must be clean" | Did you add project-specific patterns from CLAUDE.md Learned Rules? |
 | "I'll ask the human to verify the build passes" | Run `npm run build`. You can do this yourself. |
+| "This should pass" / "Looks good" / "Probably works" | Red flag language. You haven't verified. Run the command, show the output, then claim. See Red Flag Language section above. |

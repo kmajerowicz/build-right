@@ -54,6 +54,8 @@ Before presenting to the user, run a mandatory self-verification pass:
 
 ### PRD Self-Verification (do this before showing the user)
 
+This is a mandatory quality gate. The user should never see a first draft — they should see a reviewed document with issues already caught and fixed. Run all 5 checks before presenting anything.
+
 **1. Cross-phase dependency check**
 For every feature in every phase, ask: does this feature depend on something that is only delivered in a later phase? Common traps:
 - UI component references a service built in a later phase
@@ -71,7 +73,23 @@ List every conflict found. For each: either move the dependency earlier, swap ph
 **3. Open decision check**
 Scan for any decision that is ambiguous, assumed, or marked ⚠️. List them — these become challenge questions for the user.
 
-After self-verification: fix any bugs you found, then present PRD.md with a summary of what you fixed.
+**4. Completeness check**
+For every feature referenced in the feature index:
+- Does it have a demo sentence or verifiable user story? If not, the feature is too abstract.
+- Does it have at least one observable truth that can be verified at build time?
+- Are there any undefined terms — names, concepts, or entities used in one feature but never defined in the PRD or data model?
+
+Flag any feature that fails these checks. Fix what you can, surface the rest as questions.
+
+**5. Edge case and gap sweep**
+Re-read the PRD as if you are a developer about to implement Phase 1 tomorrow:
+- What would you need to ask before starting? Those are gaps.
+- What states are missing? (empty states, error states, loading states, offline states, first-time-user states)
+- What happens at the boundaries? (max items, zero items, concurrent users, expired sessions)
+
+Don't add every edge case to the PRD — but if a missing edge case would cause a developer to make a wrong assumption, add it.
+
+After self-verification: fix all issues you found, then present PRD.md with a summary of what you caught and fixed. If you fixed nothing, say so — "Self-review passed clean" is a valid outcome.
 
 For each open decision or ambiguous assumption found: use the decision gate pattern (`${CLAUDE_PLUGIN_ROOT}/docs/patterns/decision-gate.md`). Enter plan mode, present options with recommendation, user clicks. One decision at a time.
 
@@ -148,7 +166,17 @@ For each feature, define must-haves at product level (no file paths):
 
 ### Generate the Feature File
 
-Fill in `${CLAUDE_PLUGIN_ROOT}/templates/feature-md.md` with everything found above. No Skills section. Present to user for review after each feature, or batch if they prefer.
+Fill in `${CLAUDE_PLUGIN_ROOT}/templates/feature-md.md` with everything found above. No Skills section.
+
+### Feature File Self-Review (before presenting to user)
+
+Before presenting each feature file, run a quick self-review:
+- **Must-haves are testable** — every Truth uses "User can [action]" or "System does [behavior] when [condition]", not vague descriptions
+- **States covered** — does the user flow address: empty, loading, partial, full, error states? If not, add the missing ones.
+- **No undefined references** — every entity, API, or service mentioned in the feature file exists in the PRD data model or another feature file
+- **Business rules are concrete** — no "appropriate validation" or "proper error handling". Specify what validation, what error message.
+
+Fix issues before presenting. Present to user for review after each feature, or batch if they prefer.
 
 ---
 
