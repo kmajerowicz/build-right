@@ -8,6 +8,44 @@ Open topics, questions, and ideas for discussion. Anyone can add items or respon
 
 ## Ideas / To Discuss
 
+### Superpowers-Inspired: Deep Scope Mode (One Question Per Turn)
+
+**Context:** Superpowers enforces one question per message during brainstorming, creating a slower, more Socratic dialogue. GSR batches 2-3 questions per turn for speed. For complex or ambiguous products, batching can gloss over things that slower pacing would surface.
+
+**Proposal:** Opt-in "deep scope" mode at the start of `/gsr:scope`. Decision gate: "Quick scope (batched questions, faster) or Deep scope (one at a time, more thorough)?" Default stays batched; deep mode for complex/ambiguous products.
+
+---
+
+### Superpowers-Inspired: Plan Self-Review Before Handoff
+
+**Context:** Superpowers has a `plan-document-reviewer-prompt.md` — a mandatory automated review of plans before they're handed to an agent or user. Catches: vague steps, missing file paths, placeholder instructions ("add appropriate error handling"), tasks that are too large (>5 min), missing done-when criteria.
+
+**Proposal:** Add a plan self-review gate to GSR's systematic build mode (Mode B). Before presenting the task list to the user, run a self-check: every task has a concrete done-when criterion, no vague instructions, file paths are exact, no "similar to task N" shortcuts.
+
+---
+
+### Superpowers-Inspired: Finishing a Branch Skill
+
+**Context:** Superpowers has a dedicated `finishing-a-development-branch` skill covering: verify tests pass, present merge options (squash/merge/rebase), clean up the branch, update changelog. GSR has no explicit branch completion flow — after verify PASS, the user is on their own.
+
+**Proposal:** Add a `/gsr:ship` command (or extend `/gsr:verify` phase completion) that walks through: final verification, changelog entry, merge options with recommendation, branch cleanup.
+
+---
+
+### Superpowers-Inspired: Requesting and Receiving Code Review as Skills
+
+**Context:** Superpowers has two dedicated skills — `requesting-code-review` (how to present work for review, pre-review checklist) and `receiving-code-review` (how to process feedback without being defensive, what to fix vs. push back on). GSR has a `code-review.md` pattern doc but no skill-level enforcement.
+
+**Proposal:** Promote GSR's code review pattern to a full skill invoked during build, with a pre-review checklist (did you self-review? is the scope bounded? are tests passing?) and a feedback-processing protocol.
+
+---
+
+### Superpowers-Inspired: Writing Skills Framework (Meta-Skill)
+
+**Context:** Superpowers has a `writing-skills` skill — a framework for creating new skills, including persuasion principles, best practices, and a testing protocol using subagents. GSR has no mechanism for users to extend it with custom skills.
+
+**Proposal:** Add a `/gsr:new-skill` command or `writing-skills` skill that guides users through creating project-specific skills (e.g., a "Supabase patterns" skill or "our API conventions" skill) that get loaded at build time alongside marketplace skills.
+
 ### Update Notifications — Inform Users When New GSR Version is Available
 
 **Context:** Currently `/gsr:update` exists as a manual command but there's no mechanism to notify users that a new version is available. Users have to know to run it themselves.

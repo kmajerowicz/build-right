@@ -21,6 +21,28 @@ Read these files before doing anything else:
 2. `docs/STATE.md` — current phase and feature status
 3. `docs/techstack.md` — project-wide skills
 
+### Infrastructure Pre-Check
+
+After reading `docs/techstack.md`, scan for external services that require provisioning before code can run (Supabase, Firebase, PlanetScale, Neon, Stripe, Clerk, etc.).
+
+For each external service found, check if it's already confirmed as live:
+- Look for a `.env` or `.env.local` file with the relevant credentials/URLs
+- If credentials are present → assume provisioned, proceed silently
+- If credentials are missing or no `.env` exists → ask the user before proceeding:
+
+```
+Before we build: your stack uses [Service]. Is it set up?
+
+1. Yes — project created, credentials in .env
+2. Not yet — I'll set it up now
+
+(Setting it up now means no migration step at verify time.)
+```
+
+Wait for confirmation. Do not start feature selection until the user confirms infrastructure is ready or explicitly chooses to proceed without it.
+
+**Why this matters:** Building against an unprovisioned service means code that can't run during verification. Setting up first means tables/schema are created fresh — no migration needed later.
+
 ---
 
 ## Step 1: Feature Selection
