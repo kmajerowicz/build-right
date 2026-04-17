@@ -2,6 +2,8 @@
 
 **On-demand debugging methodology for GSR builds. Activates when something breaks — not a mandatory flow step.**
 
+**On-disk protocol:** For persistent debug sessions that survive `/clear`, use `/gsr:debug`. That skill writes to `docs/debug/<date>-<slug>.md` and enforces this 4-phase process with file writes at each transition. This pattern doc stays canonical for the *thinking*; the skill handles the persistence.
+
 ---
 
 ## Overview

@@ -33,10 +33,10 @@ If any check fails, fix it before reporting status. Your completion claim must i
 Report exactly one of these:
 
 **DONE**
-> Task complete. [Evidence: build passes (0 errors), TS clean, lint: 0 warnings]
+> Task complete. [Evidence: build passes (0 errors), TS clean, lint: 0 warnings] Commit: <git SHA>
 
 **DONE_WITH_CONCERNS**
-> Task complete. [Evidence]. Flagging: [specific concern for controller to review]
+> Task complete. [Evidence] Commit: <git SHA>. Flagging: [specific concern for controller to review]
 
 **NEEDS_CONTEXT**
 > Blocked on missing information. Need: [specific question]. Cannot proceed without this.
