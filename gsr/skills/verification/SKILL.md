@@ -12,6 +12,95 @@ You are executing the `/gsr:verify` command. Your job is to verify a completed f
 
 ---
 
+## Step 0: Detect Project State
+
+Read `docs/STATE.md`. Check the phase progress table.
+
+**If all phases are NOT STARTED** → the project has no built code to verify. Switch to **PRD Review Mode** (see section below). Do not proceed with Steps 1–5.
+
+**Otherwise** → continue to Step 1 (build verification).
+
+---
+
+## PRD Review Mode
+
+The project has no built phases yet. Instead of verifying code, verify the spec — catch problems now before they become expensive to fix mid-build.
+
+Run all 5 checks below. For each: fix what you can directly in `docs/PRD.md` and `docs/features/*.md`, surface what needs a user decision as a decision gate.
+
+### Check 1: Cross-Phase Dependency
+
+For every feature in every phase, ask: does this feature depend on something only delivered in a later phase?
+
+Common traps:
+- UI component references a service built in a later phase
+- Phase N demo sentence requires data only available after Phase N+2
+- Shared infrastructure (auth, caching, service workers) used before it's scaffolded
+
+For each conflict found: either move the dependency earlier, swap phase order, or add a "scaffold in Phase X, complete in Phase Y" note. Fix directly if unambiguous; use a decision gate if trade-offs exist.
+
+### Check 2: Internal Consistency
+
+- Auth type — consistent across architecture diagram, data model, onboarding flow, feature descriptions?
+- Screen/step counts — do counts in headers match the actual list of screens?
+- Data model — does every feature have the entities it needs? Does any feature reference a field that doesn't exist in the model?
+- Out-of-scope list — does anything in "explicitly out" contradict something required by an in-scope feature?
+
+### Check 3: Open Decisions
+
+Scan PRD.md and all feature files for anything ambiguous, assumed, or marked ⚠️. List them. Surface each as a decision gate — one at a time.
+
+### Check 4: Completeness
+
+For every feature in the feature index:
+- Does it have a demo sentence or verifiable user story? If not, the feature is too abstract.
+- Does it have at least one observable truth verifiable at build time?
+- Are there undefined terms — entities or concepts used but never defined in the PRD or data model?
+
+For each feature file, also check:
+- **Must-haves are testable** — every Truth uses "User can [action]" or "System does [behavior] when [condition]", not vague descriptions
+- **States covered** — empty, loading, partial, full, error states present where relevant
+- **Business rules are concrete** — no "appropriate validation" or "proper error handling"; specify what validation, what error message
+
+Fix what you can; flag what needs user input.
+
+### Check 5: Edge Case and Gap Sweep
+
+Re-read the PRD as if you are a developer about to implement Phase 1 tomorrow:
+- What would you need to ask before starting? Those are gaps.
+- What states are missing? (empty states, error states, loading states, offline states, first-time-user states)
+- What happens at the boundaries? (max items, zero items, concurrent users, expired sessions)
+
+Only add edge cases that would cause a developer to make a wrong assumption. Don't pad the PRD.
+
+---
+
+### PRD Review Report
+
+After running all 5 checks, present a structured report:
+
+```
+## PRD Review — [date]
+
+### Issues Found and Fixed
+- [what was wrong → what was changed]
+- "Review passed clean" if nothing found
+
+### Open Decisions
+[Each surfaced as a decision gate, one at a time]
+
+### Gaps Requiring Input
+[Anything that needs user clarification before building]
+
+### Summary
+Spec quality: READY TO BUILD / NEEDS DECISIONS / HAS GAPS
+```
+
+If **READY TO BUILD**: "Spec looks solid. Run `/gsr:build` to start Phase 1."
+If **NEEDS DECISIONS** or **HAS GAPS**: work through them before declaring ready.
+
+---
+
 ## Step 0: Determine Scope
 
 Ask the user: "Verify a specific feature, or a full build phase?"
@@ -188,12 +277,18 @@ These become tasks in the current phase. Fix them, then re-run /gsr:verify.
 ```
 
 If there are **Human checks**:
-Present them as a numbered list:
+If any human check requires opening the app in a browser, start the dev server first:
+```bash
+npm run dev &
 ```
-Human verification needed (Claude can't verify these):
+Wait 2–3 seconds, then confirm it started (look for "ready" or "localhost" in output). If it fails to start, report the error before presenting checks.
 
-1. [ ] Open app → [specific action] → expect: [specific outcome]
-2. [ ] [Demo sentence check]
+Then present the checklist:
+```
+Human verification needed:
+
+1. Open [localhost URL] → [specific action] → expect: [specific outcome]
+2. [Next check]
 
 Mark each as pass or fail.
 ```
@@ -249,7 +344,29 @@ For items where the categorization is clear: include them in the table without a
 
 After user confirms:
 3. If any 'must before launch' items → "These become a new build phase. Run `/gsr:build` to continue."
-4. If nothing 'must before launch' → "Project is DONE."
+4. If nothing 'must before launch' → run the Deployment Check below before declaring done.
+
+### Deployment Check
+
+Read `docs/techstack.md`. If it mentions a hosting provider (Vercel, Netlify, Railway, Fly.io, Render, etc.):
+
+Check for deployment signals:
+- `vercel.json` exists, or `.vercel/` directory exists → likely configured
+- `netlify.toml` exists → likely configured
+- Ask the user directly:
+
+```
+One last thing — your stack uses [host]. Is it deployed?
+
+1. Yes — live at [URL]
+2. Not yet — I'll deploy now
+
+Deploying now means the project is actually live, not just built.
+```
+
+If the user says "not yet": walk them through the deployment steps for their specific host (e.g. for Vercel: `vercel --prod`, confirm env vars are set, smoke test the live URL). Do not declare DONE until they confirm it's live.
+
+If the stack has no hosting provider, or the user confirms it's already live → "Project is DONE."
 
 ---
 
