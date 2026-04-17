@@ -266,8 +266,14 @@ Sequential: task [3] depends on [1]
 5. Execute tasks — parallelizable ones via subagent implementers:
    - Read `${CLAUDE_PLUGIN_ROOT}/agents/implementer.md` for the implementer agent role
    - Each agent gets: task description, CLAUDE.md content, feature file content, file boundaries, success criteria
-   - In systematic mode, dispatch a reviewer agent after each implementer: read `${CLAUDE_PLUGIN_ROOT}/agents/reviewer.md`
-   - Reviewer checks: spec compliance, integration safety, convention adherence, regression risk
+   - In systematic mode, dispatch two staged reviewers after each implementer:
+     1. **Stage 1 — Spec:** read `${CLAUDE_PLUGIN_ROOT}/agents/reviewer-spec.md`
+        - SPEC_PASS → proceed to Stage 2
+        - SPEC_FAIL → fail task back to implementer (or escalate to user if it's a product decision). Do not run Stage 2.
+        - NEEDS_INFO → surface question to user, await answer, re-run Stage 1
+     2. **Stage 2 — Quality:** read `${CLAUDE_PLUGIN_ROOT}/agents/reviewer-quality.md`
+        - APPROVED or APPROVED_WITH_CONCERNS → task done, update plan file
+        - CHANGES_REQUESTED → fail task back to implementer
    - After each implementer+reviewer cycle: update the task's row in `docs/plans/<slug>.md` — set Status to `done` (or `failed`), write the commit SHA and gate output in the Evidence column. Update `updated` in frontmatter.
 
 6. For ≥3 agents or ≥10 files: use worktree isolation (Decision 25)
