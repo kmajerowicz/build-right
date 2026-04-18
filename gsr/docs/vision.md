@@ -61,7 +61,7 @@ User has a running product and wants to build a new feature or develop existing 
 
 ## Commands
 
-GSR is a Claude Code plugin with 5 explicit commands:
+GSR is a Claude Code plugin with 6 explicit commands:
 
 | Command | What it does | Phases |
 |---------|-------------|--------|
@@ -69,6 +69,7 @@ GSR is a Claude Code plugin with 5 explicit commands:
 | `/gsr:scope` | Idea or materials → structured scope document | Phase 0 |
 | `/gsr:prd` | Scope → condensed PRD + feature files + project init | Phase 1 + 2 |
 | `/gsr:build` | Pick feature → pick mode (creative/systematic) → build | Phase 3 |
+| `/gsr:debug` | Start or resume a persistent debug session that survives `/clear` | Phase 3 |
 | `/gsr:verify` | Verify feature against PRD success criteria | Phase 4 |
 
 Each command knows what comes next and tells the user. Context clearing between commands keeps the window fresh.
@@ -90,6 +91,7 @@ See [Plugin Design](plans/2026-03-15-gsr-plugin-design.md) for full architecture
 9. **Skills are boosters, not blockers.** Matched from marketplace per feature, loaded by workflow automatically. System works without them.
 10. **Explain every choice.** The user may or may not be technical. May or may not be product-experienced. When presenting a decision, always explain: what are the options, what's the impact from a product perspective (UX, scope, timeline), and what's the impact from a technical perspective (complexity, maintainability, risk). Never assume the user knows — empower them to decide with full context.
 11. **Enforce, don't hope.** Critical rules include Red Flags and Common Rationalizations tables — preventing Claude from rationalizing its way past them. Borrowed from superpowers.
+12. **Context survives.** Debug sessions and build plans write to disk. A fresh session can resume where the last one ended.
 
 ---
 

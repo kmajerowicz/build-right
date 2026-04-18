@@ -54,10 +54,20 @@ Code review happens after implementation, before commit — in both modes. The r
 - Not a full formal review — lightweight, focused on high-risk areas
 - Example: "Before committing: this changes the shared UserContext — verify that Profile page still loads correctly"
 
-### Systematic mode (subagent reviewer)
+### Systematic mode (two-stage subagent review)
 
-- Reviewer subagent (per D29) uses this checklist automatically
-- Reports PASS/FAIL per dimension with specific issues
+Review runs in two sequenced stages. Stage 1 gates Stage 2 — a diff that misses the spec never reaches quality review.
+
+**Stage 1 — Spec Compliance** (`reviewer-spec.md`):
+- Checks dimension 1 only: user flow, states, business rules, must-haves
+- Statuses: SPEC_PASS / SPEC_FAIL / NEEDS_INFO
+- SPEC_FAIL → task fails back to implementer; Stage 2 does not run
+- NEEDS_INFO → controller surfaces question to user, then re-runs Stage 1
+
+**Stage 2 — Quality** (`reviewer-quality.md`):
+- Runs only after SPEC_PASS
+- Checks dimensions 2-4: integration safety, convention adherence, regression risk
+- Statuses: APPROVED / APPROVED_WITH_CONCERNS / CHANGES_REQUESTED / NEEDS_MORE_INFO
 - Integration safety dimension gets extra weight for Start C projects
 - Reviewer flags but doesn't fix — issues go back to implementer
 

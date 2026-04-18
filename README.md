@@ -42,10 +42,12 @@ claude plugin install gsr
 | `/gsr:scope` | Shape an idea or existing materials into a structured scope document |
 | `/gsr:prd` | Turn scope into PRD + feature files + project infrastructure |
 | `/gsr:build` | Build a specific feature — creative (you review every diff) or systematic (agent-driven) |
+| `/gsr:build --sketch` | Force a design sketch before mode selection — useful for conceptually risky features |
+| `/gsr:debug` | Start or resume a persistent debug session that survives `/clear` |
 | `/gsr:verify` | Verify a feature or phase with evidence — build passes, grep results, human checks |
 | `/gsr:learn` | Index an existing codebase, populate CLAUDE.md, and get told what to do next |
 | `/gsr:feedback` | Log a bug report, feature request, or change request to BACKLOG.md |
-| `/gsr:status` | Show current phase, feature progress, next action, and blockers from STATE.md |
+| `/gsr:status` | Show current phase, feature progress, next action, active debug sessions, and in-progress plans |
 | `/gsr:update` | Update GSR to the latest version and reinstall hooks |
 
 Each command tells you what to run next. Context clears between commands — state lives in files.
@@ -95,6 +97,22 @@ Pick a feature, pick a mode:
 
 Both modes enforce the gate function before every completion claim: build passes, TS clean, lint passes. Never "should work."
 
+### When things break (`/gsr:debug`)
+
+Run `/gsr:debug` when something stops working and you need to track the investigation. GSR creates a file at `docs/debug/<date>-<slug>.md` that records the symptom, reproduction steps, current hypothesis, evidence, and eliminated causes. Each phase transition writes to disk.
+
+If you hit `/clear` mid-investigation: run `/gsr:debug` again — it lists active sessions and offers resume. If you're inside a build and something breaks, the build skill will invoke `/gsr:debug` automatically and hand back to the build flow when the session resolves.
+
+**Optional rigor:** `/gsr:debug` fires only when invoked. Clean builds never see it.
+
+### When things are fuzzy (`/gsr:build --sketch`)
+
+Before mode selection, GSR can propose a short design sketch for the feature: approach, file map, data shape, what could break, out of scope. It fires automatically when a feature file has ambiguity markers (`TBD`, missing acceptance criteria, >3 cross-feature dependencies). For clean feature files, it's silent.
+
+To force the gate regardless: `/gsr:build --sketch`. To skip it in one click: "Skip — I know what I'm building." Approved sketches are appended to the feature file as a dated section — no separate file.
+
+**Optional rigor:** gets heavier only when the feature warrants it.
+
 ### Verification (`/gsr:verify`)
 4-tier evidence ladder:
 1. Automated — build, TypeScript, lint
@@ -119,6 +137,10 @@ your-project/
 │   │   ├── dashboard.md       # Full spec: flow, states, rules, must-haves, skills
 │   │   ├── onboarding.md
 │   │   └── ...
+│   ├── debug/
+│   │   └── 2026-04-18-auth-token-undefined.md   # Active debug session (survives /clear)
+│   ├── plans/
+│   │   └── 2026-04-18-dashboard.md              # Systematic build plan (task table + evidence)
 │   ├── STATE.md               # Progress tracker (~30 lines)
 │   └── BACKLOG.md             # Deferred work
 └── src/                       # Code = source of truth for implementation

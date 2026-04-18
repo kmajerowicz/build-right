@@ -94,6 +94,54 @@ Wait for user to click. Do not proceed silently.
 
 **Load project-wide skills now.** Read each skill's SKILL.md from `docs/techstack.md`. Skills matched to specific tasks happen after the task list is generated — see Step 3.5.
 
+**Resume check (Mode B only):** After loading the feature file, scan `docs/plans/` for a plan file where the `feature` frontmatter matches the current feature slug and `status: in_progress`. If one exists, present:
+
+> Found an in-progress plan for `<feature>` at `docs/plans/<slug>.md`. Last updated: <date>.
+> 1. Resume — continue from last incomplete task
+> 2. Start fresh — discard and rebuild the task list
+
+Wait for user choice before proceeding to Step 3. On Resume: skip to the execution loop in Mode B, starting from the first task with `status: pending` or `status: in-progress`.
+
+---
+
+## Step 2.5: Design Sketch Gate
+
+Read `${CLAUDE_PLUGIN_ROOT}/docs/patterns/feature-sketch.md` for full pattern doc.
+
+**Skip this step entirely if** `FORCE_SKETCH` is not set AND none of the heuristic conditions below trigger.
+
+**Heuristic — fire the gate if any of these are true in the feature file:**
+1. Fewer than 3 concrete states (empty / loading / error / success / offline / partial) mentioned
+2. No acceptance criteria or done-when language in the must-haves section
+3. Explicit `TBD`, `?`, or `decide during build` markers anywhere in the file
+4. Feature declares dependencies on >3 other features
+
+If `FORCE_SKETCH=true` (user passed `--sketch`): fire regardless of heuristic.
+
+**When the gate fires**, propose the sketch inline:
+
+> **Design sketch for `<feature>`**
+> **Approach:** <one paragraph>
+> **File map:** <what to add / change>
+> **Data shape:** <if feature handles data; omit if purely presentational>
+> **What could break:** <one line>
+> **Out of scope:** <explicit list>
+>
+> 1. Approve — append sketch to feature file and proceed
+> 2. Edit — tell me what to change, I'll revise
+> 3. Skip — I know what I'm building
+
+On **Approve**: append to `docs/features/<name>.md` as a new section:
+```markdown
+## Build Sketch — <YYYY-MM-DD>
+<sketch content>
+```
+Then proceed to Step 3.
+
+On **Edit**: revise the sketch and re-present. Loop until Approve or Skip.
+
+On **Skip**: proceed to Step 3 silently. No file written.
+
 ---
 
 ## Step 3: Mode Selection
@@ -220,7 +268,7 @@ done, test it:
 ```
 
 **When stuck or something breaks:**
-Switch to systematic debugging. Read `${CLAUDE_PLUGIN_ROOT}/docs/patterns/systematic-debugging.md`. Follow the 4-phase process (OBSERVE → HYPOTHESIZE → TEST → CONCLUDE). Return to build flow after fix is verified.
+Check `docs/debug/` for an active debug session for this feature (`status: active` in frontmatter, `feature` matches current feature name). If one exists, invoke `/gsr:debug resume <slug>` to continue it. If none exists, invoke `/gsr:debug` to start a new session. Return to build flow after the session reaches `status: resolved`.
 
 **When the user makes a correction:**
 After implementing: "This is now the expected behavior. Should I add this to CLAUDE.md Learned Rules so it applies to future work?"
@@ -247,28 +295,41 @@ Sequential: task [3] depends on [1]
 
 3. **Run Step 3.5 (skills matching).** Match skills to tasks, present verification table, wait for user to confirm skills before proceeding.
 
-4. **User must approve task list + skills before anything executes.** This gate is non-negotiable.
+4. **Write plan file before the approval gate.** Create `docs/plans/<YYYY-MM-DD>-<feature-slug>.md` from `${CLAUDE_PLUGIN_ROOT}/templates/plan-md.md`. Fill in: feature slug, skills confirmed list, and the full task table with Status `pending` for all rows and parallelization map.
 
-4. Execute tasks — parallelizable ones via subagent implementers:
+   Then present the approval gate:
+   > Task list saved to `docs/plans/<slug>.md` — it'll stay there across `/clear`. Approve to execute?
+   > (Task list shown above for review.)
+
+   This gate is non-negotiable. Do not start executing until the user approves.
+
+5. Execute tasks — parallelizable ones via subagent implementers:
    - Read `${CLAUDE_PLUGIN_ROOT}/agents/implementer.md` for the implementer agent role
    - Each agent gets: task description, CLAUDE.md content, feature file content, file boundaries, success criteria
-   - In systematic mode, dispatch a reviewer agent after each implementer: read `${CLAUDE_PLUGIN_ROOT}/agents/reviewer.md`
-   - Reviewer checks: spec compliance, integration safety, convention adherence, regression risk
+   - In systematic mode, dispatch two staged reviewers after each implementer:
+     1. **Stage 1 — Spec:** read `${CLAUDE_PLUGIN_ROOT}/agents/reviewer-spec.md`
+        - SPEC_PASS → proceed to Stage 2
+        - SPEC_FAIL → fail task back to implementer (or escalate to user if it's a product decision). Do not run Stage 2.
+        - NEEDS_INFO → surface question to user, await answer, re-run Stage 1
+     2. **Stage 2 — Quality:** read `${CLAUDE_PLUGIN_ROOT}/agents/reviewer-quality.md`
+        - APPROVED or APPROVED_WITH_CONCERNS → task done, update plan file
+        - CHANGES_REQUESTED → fail task back to implementer
+   - After each implementer+reviewer cycle: update the task's row in `docs/plans/<slug>.md` — set Status to `done` (or `failed`), write the commit SHA and gate output in the Evidence column. Update `updated` in frontmatter.
 
-5. For ≥3 agents or ≥10 files: use worktree isolation (Decision 25)
+6. For ≥3 agents or ≥10 files: use worktree isolation (Decision 25)
    - Each agent in its own git worktree
    - Sequential merge after all complete
    - Single wiring pass (shared files, consistency check) after merge
 
-6. Atomic commit per task with evidence: `git commit -m "feat: [task] — build passes, 0 TS errors, 12/12 tests pass"`
+7. Atomic commit per task with evidence: `git commit -m "feat: [task] — build passes, 0 TS errors, 12/12 tests pass"`
 
-7. Mini-verification after each task:
+8. Mini-verification after each task:
    - `npm run build` → 0 errors
    - `npx tsc --noEmit` → 0 errors
    - Lint if configured → pass
    Fix before committing. Never commit a broken build.
 
-8. Update STATE.md after all tasks complete.
+9. Set `status: complete` in `docs/plans/<slug>.md` frontmatter. Update `updated`. Then update STATE.md.
 
 ### Parallelization Heuristic
 
