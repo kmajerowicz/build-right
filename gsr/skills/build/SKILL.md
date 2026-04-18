@@ -104,6 +104,46 @@ Wait for user choice before proceeding to Step 3. On Resume: skip to the executi
 
 ---
 
+## Step 2.5: Design Sketch Gate
+
+Read `${CLAUDE_PLUGIN_ROOT}/docs/patterns/feature-sketch.md` for full pattern doc.
+
+**Skip this step entirely if** `FORCE_SKETCH` is not set AND none of the heuristic conditions below trigger.
+
+**Heuristic — fire the gate if any of these are true in the feature file:**
+1. Fewer than 3 concrete states (empty / loading / error / success / offline / partial) mentioned
+2. No acceptance criteria or done-when language in the must-haves section
+3. Explicit `TBD`, `?`, or `decide during build` markers anywhere in the file
+4. Feature declares dependencies on >3 other features
+
+If `FORCE_SKETCH=true` (user passed `--sketch`): fire regardless of heuristic.
+
+**When the gate fires**, propose the sketch inline:
+
+> **Design sketch for `<feature>`**
+> **Approach:** <one paragraph>
+> **File map:** <what to add / change>
+> **Data shape:** <if feature handles data; omit if purely presentational>
+> **What could break:** <one line>
+> **Out of scope:** <explicit list>
+>
+> 1. Approve — append sketch to feature file and proceed
+> 2. Edit — tell me what to change, I'll revise
+> 3. Skip — I know what I'm building
+
+On **Approve**: append to `docs/features/<name>.md` as a new section:
+```markdown
+## Build Sketch — <YYYY-MM-DD>
+<sketch content>
+```
+Then proceed to Step 3.
+
+On **Edit**: revise the sketch and re-present. Loop until Approve or Skip.
+
+On **Skip**: proceed to Step 3 silently. No file written.
+
+---
+
 ## Step 3: Mode Selection
 
 Use the decision gate pattern (`${CLAUDE_PLUGIN_ROOT}/docs/patterns/decision-gate.md`). Enter plan mode and present:

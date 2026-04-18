@@ -8,6 +8,8 @@ You are running the `/gsr:build` command.
 ```
 Update this file (don't recreate) if it already exists — preserve `project_dir` and `project_name`, update `last_command` and `timestamp`.
 
+**Flag handling:** If invoked as `/gsr:build --sketch`, set `FORCE_SKETCH=true` before loading the skill so Step 2.5 fires unconditionally regardless of the heuristic.
+
 Load and execute the build skill: read `${CLAUDE_PLUGIN_ROOT}/skills/build/SKILL.md` in full, then follow its instructions exactly.
 
 When a feature build is complete, tell the user:
