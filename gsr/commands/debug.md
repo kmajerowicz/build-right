@@ -10,7 +10,7 @@ Update this file (don't recreate) if it already exists — preserve `project_dir
 
 **Invocation variants:**
 
-- `/gsr:debug` — no argument: scan `docs/debug/` for files with `status: active` in frontmatter. If any exist, list them and ask the user which to resume (or start new). If none exist, prompt for a symptom and start a new session.
+- `/gsr:debug` — no argument: scan `docs/debug/` for files with `status: active` in frontmatter. If any exist, present them conversationally: "Here are your active debug sessions: [slug — feature, last updated]. Pick one to resume, or tell me what's broken to start a new one." If none exist, prompt for a symptom and start a new session.
 - `/gsr:debug resume <slug>` — load `docs/debug/<slug>.md` directly, continue from Current Focus + Next Step.
 
 Load and execute the debug skill: read `${CLAUDE_PLUGIN_ROOT}/skills/debug/SKILL.md` in full, then follow its instructions exactly.

@@ -46,6 +46,13 @@ Parse it and output a structured status report using this exact format:
 - If no phases exist but scope.md exists → `/gsr:prd`
 - If no scope.md exists → `/gsr:scope`
 
+### Active Sessions
+Scan `docs/debug/` for files with `status: active` in frontmatter. Scan `docs/plans/` for files with `status: in_progress` in frontmatter. For each found, show one line:
+- Debug: `docs/debug/<slug>.md` — feature: <feature>, last updated: <date>
+- Plan: `docs/plans/<slug>.md` — <N>/<total> tasks done, last updated: <date>
+
+If none found: "No active debug sessions or in-progress plans."
+
 ---
 
 Keep the output tight — no extra commentary. If a section is missing from STATE.md, show the fallback text for that section and move on.

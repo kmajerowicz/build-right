@@ -25,14 +25,14 @@ You are executing the `/gsr:debug` command. Your job is to run a persistent, sys
    - **Reproduction** section: ask for steps if not provided; do not guess
    - **Next Step**: "Enter OBSERVE phase — gather facts before forming any hypothesis."
    - **Timeline**: `[<date>] Session created — OBSERVE`
-4. Tell the user: "Debug session created at `docs/debug/<slug>.md`. Starting OBSERVE phase."
+4. Tell the user: "Here's your debug session file: `docs/debug/<slug>.md` — it'll survive a `/clear` or session crash. Starting OBSERVE phase."
 
 ---
 
 ## Entry: Resume existing session
 
 1. Read `docs/debug/<slug>.md`.
-2. Announce current state: "Resuming `<slug>`. Current Focus: `<hypothesis>`. Next Step: `<next step>`."
+2. Announce current state: "Picking up `docs/debug/<slug>.md`. Current Focus: `<hypothesis>`. Next Step: `<next step>`."
 3. Continue from the recorded Next Step. Do not re-run phases already completed unless the user asks.
 
 ---

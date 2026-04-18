@@ -298,7 +298,7 @@ Sequential: task [3] depends on [1]
 4. **Write plan file before the approval gate.** Create `docs/plans/<YYYY-MM-DD>-<feature-slug>.md` from `${CLAUDE_PLUGIN_ROOT}/templates/plan-md.md`. Fill in: feature slug, skills confirmed list, and the full task table with Status `pending` for all rows and parallelization map.
 
    Then present the approval gate:
-   > Task list written to `docs/plans/<slug>.md`. Approve to execute?
+   > Task list saved to `docs/plans/<slug>.md` — it'll stay there across `/clear`. Approve to execute?
    > (Task list shown above for review.)
 
    This gate is non-negotiable. Do not start executing until the user approves.
