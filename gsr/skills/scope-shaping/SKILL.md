@@ -15,6 +15,16 @@ You are executing the `/gsr:scope` command. Your job is to turn a raw idea (Star
 
 ---
 
+## Model Recommendation (show first, once)
+
+Before any detection or question, show this one-liner to the user (exact text):
+
+> 💡 Ten etap jest reasoning-heavy (scope decyduje o całym downstreamie). Najlepiej pójdzie na Opusie — jeśli nie jesteś na Opusie, rozważ `/model opus` teraz i wróć. Inaczej jedziemy dalej.
+
+Do not wait for a response. Proceed immediately to "Detect Entry Point" below. Show this reminder only once per session.
+
+---
+
 ## Detect Entry Point
 
 Before asking anything, check what exists in the project:
@@ -60,7 +70,7 @@ Ready to research. I'll launch 2 agents in parallel:
 This will take 1-3 minutes. OK to proceed?
 ```
 
-Wait for confirmation. Then research in parallel using researcher agents:
+Wait for confirmation. Then research in parallel using researcher agents. Each Agent tool call must pass `model: "claude-opus-4-7"` (see `${CLAUDE_PLUGIN_ROOT}/agents/researcher.md` — Recommended Model).
 
 **Agent 1 — Competitive mapping:**
 "Research [primary competitor]'s UX for [primary use case]. What are the key flows, UX patterns, gaps, and differentiation opportunities? Include ALL relevant competitors and alternatives (from free/open-source to premium). For each: full pricing range (cheapest to most expensive plan). The user needs this for business validation."
@@ -122,7 +132,7 @@ Full document review. Check everything:
   - **Blocking PRD** → note for PRD phase
   - **Blocking build** → flag in scope, resolve when you get there
 
-For research areas that are blocking scope: dispatch researcher agents and integrate findings before proceeding.
+For research areas that are blocking scope: dispatch researcher agents and integrate findings before proceeding. Pass `model: "claude-opus-4-7"` on each Agent tool call (see `${CLAUDE_PLUGIN_ROOT}/agents/researcher.md`).
 
 ### Step 7: Final Review (Two-Pass Rule)
 

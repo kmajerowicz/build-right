@@ -14,6 +14,16 @@ This skill runs Phase 1 (PRD generation) + Phase 2 (project init) in one flow.
 
 ---
 
+## Model Recommendation (show first, once)
+
+Before any detection or action, show this one-liner to the user (exact text):
+
+> 💡 Ten etap jest reasoning-heavy (PRD i feature files kształtują całą implementację). Najlepiej pójdzie na Opusie — jeśli nie jesteś na Opusie, rozważ `/model opus` teraz i wróć. Inaczej jedziemy dalej.
+
+Do not wait for a response. Proceed immediately to "Step 0: Detect Mode" below. Show this reminder only once per session.
+
+---
+
 ## Step 0: Detect Mode
 
 Before doing anything, check if `docs/PRD.md` already exists.
@@ -27,7 +37,7 @@ Before doing anything, check if `docs/PRD.md` already exists.
 
 **If PRD.md does not exist → Full generation mode:**
 - Read `docs/scope.md` and any design references the user mentions
-- Resolve research areas from scope.md marked "blocking PRD" before writing — dispatch researcher agents in parallel for independent research questions
+- Resolve research areas from scope.md marked "blocking PRD" before writing — dispatch researcher agents in parallel for independent research questions. Each Agent tool call must pass `model: "claude-opus-4-7"` (see `${CLAUDE_PLUGIN_ROOT}/agents/researcher.md`).
 - Proceed through Step 1 in full
 
 ---
@@ -119,7 +129,7 @@ For each feature in the feature index, generate `docs/features/<name>.md` using 
 
 **No skills matching here.** Skills are matched to tasks at build time, not at feature file generation time. Do not add a Skills section to feature files.
 
-Run Step 2a in **parallel for each feature** (use researcher agents):
+Run Step 2a in **parallel for each feature** (use researcher agents). Each Agent tool call must pass `model: "claude-opus-4-7"` (see `${CLAUDE_PLUGIN_ROOT}/agents/researcher.md`):
 
 ### Step 2a: Don't Hand-Roll Sweep
 

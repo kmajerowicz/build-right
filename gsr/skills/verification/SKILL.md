@@ -124,7 +124,7 @@ These were defined at spec time. You are now checking that they are actually tru
 
 ## Step 2: Run Verification in Parallel
 
-Dispatch parallel verification checks (use implementer agents for independent checks):
+Dispatch parallel verification checks (use implementer agents for independent checks). Each Agent tool call must pass `model: "claude-sonnet-4-6"` (see `${CLAUDE_PLUGIN_ROOT}/agents/implementer.md` — Recommended Model):
 
 ### Check 1: Build & TypeScript (Tier 1 — Automated)
 ```bash

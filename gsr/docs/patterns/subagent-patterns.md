@@ -52,6 +52,21 @@ Information gatherer. Returns structured findings, never makes decisions.
 
 ---
 
+## Model Assignment
+
+Each subagent role has a recommended model baked in. When the controller dispatches a subagent via Claude Code's Agent tool, it passes the `model` parameter so the subagent runs on the right model regardless of the main session's model. This saves Pro-plan credits (Opus for reasoning-heavy phases only, Sonnet for bounded execution) without forcing the user to switch manually.
+
+| Role | Model | Why |
+|---|---|---|
+| Researcher | `claude-opus-4-7` | Output shapes scope/PRD decisions; reasoning quality has outsized downstream impact |
+| Implementer | `claude-sonnet-4-6` | Bounded execution against a fully-specified contract — Sonnet handles this well |
+| Reviewer-spec | `claude-sonnet-4-6` | Sharp pass/fail check against a feature file |
+| Reviewer-quality | `claude-sonnet-4-6` | Primarily convention/integration pattern matching |
+
+**Truth source:** each agent role file (`${CLAUDE_PLUGIN_ROOT}/agents/<role>.md`) declares its Recommended Model. Skill files reference that model explicitly in their dispatch instructions. If the user has explicitly overridden a model (via project convention or direct request), honor the override.
+
+---
+
 ## Status Protocol
 
 Every subagent reports one of exactly 4 statuses. No ambiguity.
