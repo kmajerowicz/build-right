@@ -77,3 +77,8 @@ Every tool use:
 Both hooks detect whether the current project uses GSR (checks for `docs/STATE.md`):
 - **Status line**: reads current phase/focus from STATE.md
 - **Context monitor**: GSR-specific messages referencing STATE.md for session resume
+
+### Session Resume (`session-start`)
+On every session start, `/clear`, and `/compact`, the hook also scans `docs/plans/` for any plan file with `status: in_progress` and injects a resume prompt:
+- **Active plan**: shows feature, progress (X/N tasks done), and next task
+- **Stale plan** (last updated >7 days ago): flagged as "possibly abandoned" so Claude doesn't blindly resume abandoned work

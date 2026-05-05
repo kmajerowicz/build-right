@@ -41,6 +41,75 @@ if (isGsrProject) {
     stateSnippet = state.split('\n').slice(0, 20).join('\n');
   }
 
+  // Detect active (in-progress) plan files
+  const STALE_DAYS = 7;
+  const plansDir = path.join(cwd, 'docs', 'plans');
+  let activePlansBlock = '';
+
+  if (fs.existsSync(plansDir)) {
+    const planFiles = fs.readdirSync(plansDir).filter(f => f.endsWith('.md'));
+    const activeLines = [];
+
+    for (const file of planFiles) {
+      try {
+        const content = fs.readFileSync(path.join(plansDir, file), 'utf8');
+        const lines = content.split('\n');
+
+        // Parse frontmatter (between first two --- lines)
+        if (lines[0] !== '---') continue;
+        const fmEnd = lines.indexOf('---', 1);
+        if (fmEnd === -1) continue;
+        const fm = lines.slice(1, fmEnd).join('\n');
+
+        const statusMatch = fm.match(/^status:\s*(.+)$/m);
+        if (!statusMatch || statusMatch[1].trim() !== 'in_progress') continue;
+
+        const featureMatch = fm.match(/^feature:\s*(.+)$/m);
+        const updatedMatch = fm.match(/^updated:\s*(.+)$/m);
+        const feature = featureMatch ? featureMatch[1].trim() : file.replace('.md', '');
+        const updated = updatedMatch ? updatedMatch[1].trim() : null;
+
+        // Check staleness
+        let isStale = false;
+        if (updated) {
+          const updatedMs = Date.parse(updated);
+          if (!isNaN(updatedMs)) {
+            const daysDiff = (Date.now() - updatedMs) / (1000 * 60 * 60 * 24);
+            isStale = daysDiff > STALE_DAYS;
+          }
+        }
+
+        // Count done vs total tasks from the task table
+        const taskRows = lines.filter(l => /^\|\s*\d+\s*\|/.test(l));
+        const total = taskRows.length;
+        const done = taskRows.filter(l => /\|\s*done\s*\|/i.test(l)).length;
+
+        // Find first non-done task description
+        const nextRow = taskRows.find(l => !/\|\s*done\s*\|/i.test(l));
+        let nextTask = '';
+        if (nextRow) {
+          const cols = nextRow.split('|').map(c => c.trim());
+          // cols: ['', ID, Description, Done When, Files, Status, Evidence, '']
+          if (cols.length >= 3) nextTask = `Task ${cols[1]} — ${cols[2]}`;
+        }
+
+        const label = isStale ? '⚠️  Stale plan (possibly abandoned)' : 'Active plan — resume available';
+        const updatedLabel = updated ? `, last updated ${updated}` : '';
+        activeLines.push(
+          `${label}:\n` +
+          `  Feature: ${feature}${updatedLabel}\n` +
+          `  File: docs/plans/${file}\n` +
+          `  Progress: ${done}/${total} tasks done` +
+          (nextTask ? `\n  Next task: ${nextTask}` : '')
+        );
+      } catch (e) { /* skip malformed plan files */ }
+    }
+
+    if (activeLines.length > 0) {
+      activePlansBlock = '\n' + activeLines.join('\n\n') + '\n\nRun /gsr:build to resume.';
+    }
+  }
+
   console.log(`
 <gsr-context>
 This is a GSR (Get Shit Right) project. Available commands:
@@ -50,7 +119,7 @@ This is a GSR (Get Shit Right) project. Available commands:
 - /gsr:verify — verify feature or phase against PRD criteria
 - /gsr:learn  — (re)index codebase, refresh CLAUDE.md
 
-${stateSnippet ? `Current project state:\n${stateSnippet}` : ''}
+${stateSnippet ? `Current project state:\n${stateSnippet}` : ''}${activePlansBlock}
 </gsr-context>
 `);
 } else {
